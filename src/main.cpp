@@ -4,18 +4,14 @@
 #include "../include/picture.h"
 #include "../include/texturePic.h"
 #include "../include/timer.h"
-#include "../include/util.h"
 
-#include <cmath>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <string>
 #include <vector>
 
 int main() {
   Timer timer;
-  const Picture srcPic("warhammer.png");
+  const Picture srcPic("./srcPics/warhammer.png");
+  //   gaussianBlur(srcPic, 20);
 
   const std::string dir = "./blocks";
   const std::vector<std::string> fPaths = getValidPaths(dir);

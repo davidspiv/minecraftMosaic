@@ -88,5 +88,5 @@ void createTexturedPic(const Picture &srcPic,
     }
   }
 
-  texturedPic.save("texturedPic.png");
+  texturedPic.save("./outputPics/texturedPic.png");
 }
