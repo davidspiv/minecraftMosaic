@@ -1,4 +1,5 @@
 #include "../include/picture.h"
+#include "../include/timer.h"
 
 #include <cmath>
 #include <filesystem>
@@ -207,39 +208,53 @@ void createTestPic(const Color &exactColor,
 }
 
 int main() {
-  //   const std::string dir = "./blocks";
+  Timer timer;
+  const std::string dir = "./blocks";
 
-  //   const std::vector<std::string> fPaths = getValidPaths(dir);
-  //   const std::vector<Picture> validTextures = getValidTextures(fPaths);
-  //   const std::vector<Color> quantColors =
-  //   buildQuantizedColors(validTextures);
-
-  //   const Color testColor = {167, 118, 96};
-  //   createTestPic(testColor, validTextures, quantColors);
+  const std::vector<std::string> fPaths = getValidPaths(dir);
+  const std::vector<Picture> validTextures = getValidTextures(fPaths);
+  const std::vector<Color> quantColors = buildQuantizedColors(validTextures);
 
   Picture pic("lotus.png");
 
-  const int cellsHorizontal = pic.width() / 16;
-  const int cellsVertical = pic.height() / 16;
-  std::vector<std::vector<Color>> avgColors(
-      cellsVertical, std::vector<Color>(cellsHorizontal));
+  const int cHorizontal = pic.width() / 16;
+  const int cVertical = pic.height() / 16;
 
-  for (size_t j = 0; j < pic.height(); j += 16) {
-    for (size_t i = 0; i < pic.width(); i += 16) {
-      avgColors.at(j / 16).at(i / 16) = getAverageRGB(pic, i, j);
+  std::vector<std::vector<Color>> avgColors(cVertical,
+                                            std::vector<Color>(cHorizontal));
+  std::vector<std::vector<int>> textureMap(cVertical,
+                                           std::vector<int>(cHorizontal));
+
+  for (int j = 0; j < pic.height(); j += 16) {
+    for (int i = 0; i < pic.width(); i += 16) {
+
+      const Color avgColor = getAverageRGB(pic, i, j);
+      avgColors.at(j / 16).at(i / 16) = avgColor;
+
+      const int texIdx = findNearestColor(avgColor, quantColors);
+      textureMap.at(j / 16).at(i / 16) = texIdx;
     }
   }
 
   Picture quantPic(pic.width(), pic.height(), 0, 0, 0);
 
-  for (size_t j = 0; j < quantPic.height(); j++) {
-    for (size_t i = 0; i < quantPic.width(); i++) {
-      auto [avgR, avgG, avgB] = avgColors.at(j / 16).at(i / 16);
-      quantPic.set(i, j, avgR, avgG, avgB, 255);
+  for (int j = 0; j < quantPic.height(); j++) {
+    for (int i = 0; i < quantPic.width(); i++) {
+      //   auto [avgR, avgG, avgB] = avgColors.at(j / 16).at(i / 16);
+      //   quantPic.set(i, j, avgR, avgG, avgB, 255);
+      const int texIdx = textureMap.at(j / 16).at(i / 16);
+
+      int r = validTextures.at(texIdx).red(i % 16, j % 16);
+      int g = validTextures.at(texIdx).green(i % 16, j % 16);
+      int b = validTextures.at(texIdx).blue(i % 16, j % 16);
+
+      quantPic.set(i, j, r, g, b, 255);
     }
   }
 
   quantPic.save("quantPic.png");
 
+  //   const Color testColor = {167, 118, 96};
+  // createTestPic(testColor, validTextures, quantColors);
   //   buildAtlas(validTextures);
 }
