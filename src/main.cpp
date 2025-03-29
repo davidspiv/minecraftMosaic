@@ -286,20 +286,22 @@ void createTestPic(const Color &exactColor,
 }
 
 int main() {
-  const std::string dir = "./blocks";
-  const std::vector<std::string> fPaths = getValidPaths(dir);
-  const std::vector<Picture> validTextures = getValidTextures(fPaths);
-  const std::vector<Color> quantColors = buildQuantizedColors(validTextures);
+  Timer timer;
+  //   const std::string dir = "./blocks";
+  //   const std::vector<std::string> fPaths = getValidPaths(dir);
+  //   const std::vector<Picture> validTextures = getValidTextures(fPaths);
+  //   const std::vector<Color> quantColors =
+  //   buildQuantizedColors(validTextures);
 
   Picture pic("warhammer.png");
 
-  const auto textureMap = buildTextureMap(pic, quantColors);
-  createTexturesPic(pic, textureMap, validTextures);
+  //   const auto textureMap = buildTextureMap(pic, quantColors);
+  //   createTexturesPic(pic, textureMap, validTextures);
 
   const std::vector<std::vector<Color>> avgMap = buildAvgMap(pic);
   createAvgPic(pic, avgMap);
 
-  const Color testColor = {167, 118, 96};
-  createTestPic(testColor, validTextures, quantColors);
-  buildAtlas(validTextures);
+  //   const Color testColor = {167, 118, 96};
+  //   createTestPic(testColor, validTextures, quantColors);
+  //   buildAtlas(validTextures);
 }
