@@ -155,8 +155,9 @@ build/main.o: src/main.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/locale_facets.tcc \
  /usr/include/c++/11/bits/basic_ios.tcc \
  /usr/include/c++/11/bits/ostream.tcc /usr/include/c++/11/istream \
- /usr/include/c++/11/bits/istream.tcc /usr/include/c++/11/cmath \
- /usr/include/math.h /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+ /usr/include/c++/11/bits/istream.tcc src/../include/util.h \
+ /usr/include/c++/11/cmath /usr/include/math.h \
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
@@ -396,6 +397,7 @@ src/../include/timer.h:
 /usr/include/c++/11/bits/ostream.tcc:
 /usr/include/c++/11/istream:
 /usr/include/c++/11/bits/istream.tcc:
+src/../include/util.h:
 /usr/include/c++/11/cmath:
 /usr/include/math.h:
 /usr/include/x86_64-linux-gnu/bits/math-vector.h:

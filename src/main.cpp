@@ -1,5 +1,6 @@
 #include "../include/picture.h"
 #include "../include/timer.h"
+#include "../include/util.h"
 
 #include <cmath>
 #include <filesystem>
@@ -8,23 +9,6 @@
 #include <string>
 #include <vector>
 
-struct Color {
-  int r;
-  int g;
-  int b;
-};
-
-// convert sRGB channel to a linear value
-double linearizeRGB(int channel) {
-  double normalizedRGB = channel / 255.0;
-
-  if (normalizedRGB <= 0.04045) {
-    return normalizedRGB / 12.92;
-  } else {
-    return pow(((normalizedRGB + 0.055) / 1.055), 2.4);
-  }
-}
-
 double distSquared(const Color &colorA, const Color &colorB) {
   const double rD = colorB.r - colorA.r;
   const double gD = colorB.g - colorA.g;
@@ -32,52 +16,34 @@ double distSquared(const Color &colorA, const Color &colorB) {
   return rD * rD + gD * gD + bD * bD;
 }
 
-Color getAverageRGB(const Picture &pic) {
+Color getAverageRGB(const Picture &pic, int originX, int originY) {
   // https://sighack.com/post/averaging-rgb-colors-the-right-way
 
-  int r = 0;
-  int b = 0;
-  int g = 0;
-
-  int numPx = 0;
-  for (int j = 0; j < pic.height(); j++) {
-    for (int i = 0; i < pic.width(); i++) {
-
-      /* Sum the squares of components instead */
-      r += pic.red(i, j) * pic.red(i, j);
-      g += pic.green(i, j) * pic.green(i, j);
-      b += pic.blue(i, j) * pic.blue(i, j);
-
-      ++numPx;
-    }
-  }
-  /* Return the sqrt of the mean of squared R, G, and B sums */
-  return {int(std::round(sqrt(r / numPx))), int(std::round(sqrt(g / numPx))),
-          int(std::round(sqrt(b / numPx)))};
-}
-
-Color getAverageRGB(const Picture &pic, int originX, int originY) {
-
-  int r = 0;
-  int b = 0;
-  int g = 0;
+  double r = 0;
+  double b = 0;
+  double g = 0;
 
   int numPx = 0;
   for (int j = originY; j < originY + 16; j++) {
     for (int i = originX; i < originX + 16; i++) {
 
+      const double rComponent = linearizeRGB(pic.red(i, j));
+      const double gComponent = linearizeRGB(pic.green(i, j));
+      const double bComponent = linearizeRGB(pic.blue(i, j));
+
       /* Sum the squares of components instead */
-      r += pic.red(i, j) * pic.red(i, j);
-      g += pic.green(i, j) * pic.green(i, j);
-      b += pic.blue(i, j) * pic.blue(i, j);
+      r += rComponent * rComponent;
+      g += gComponent * gComponent;
+      b += bComponent * bComponent;
 
       ++numPx;
     }
   }
   /* Return the sqrt of the mean of squared R, G, and B sums */
-  return {int(std::round(sqrt(r / numPx))), int(std::round(sqrt(g / numPx))),
-          int(std::round(sqrt(b / numPx)))};
+  return {delinearizeRGB(sqrt(r / numPx)), delinearizeRGB(sqrt(g / numPx)),
+          delinearizeRGB(sqrt(b / numPx))};
 }
+
 
 std::vector<std::string> getValidPaths(std::string dir) {
   std::vector<std::string> fPaths;
@@ -130,7 +96,7 @@ buildQuantizedColors(const std::vector<Picture> &validTextures) {
 
   for (size_t i = 0; i < numValidTiles; i++) {
     Picture pic(validTextures[i]);
-    Color averageRGB = getAverageRGB(pic);
+    Color averageRGB = getAverageRGB(pic, 0, 0);
     quantColors.at(i) = averageRGB;
   }
 
