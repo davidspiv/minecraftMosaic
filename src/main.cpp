@@ -76,13 +76,14 @@ size_t findClosestColorIdx(const ColorRGB &targetColor,
   size_t closestColorIdx = 0;
   double minDist = std::numeric_limits<double>::max();
 
-  const ColorXYZ tColorCEI = rgbToCIE(linearize(targetColor));
-  const Coord targetCoord = {tColorCEI.x, tColorCEI.y, tColorCEI.z};
+  const ColorCIELab tColorCEI = rgbToCIE(linearize(targetColor));
+  const Coord targetCoord = {tColorCEI.lStar, tColorCEI.aStar, tColorCEI.bStar};
 
   for (size_t i = 0; i < quantColors.size(); i++) {
 
-    const ColorXYZ oColorCEI = rgbToCIE(linearize(quantColors.at(i)));
-    const Coord otherCoord = {oColorCEI.x, oColorCEI.y, oColorCEI.z};
+    const ColorCIELab oColorCEI = rgbToCIE(linearize(quantColors.at(i)));
+    const Coord otherCoord = {oColorCEI.lStar, oColorCEI.aStar,
+                              oColorCEI.bStar};
 
     double dist = distSquared(targetCoord, otherCoord);
     if (dist < minDist) {
@@ -174,6 +175,26 @@ void createAtlasPic(const std::vector<Picture> &validTextures) {
 }
 
 
+void createQuantizedPic(const Picture &pic,
+                        std::vector<std::vector<int>> textureLookupTable,
+                        const std::vector<ColorRGB> &avgColors) {
+
+  Picture quantPic(pic.width(), pic.height(), 0, 0, 0);
+
+  for (int j = 0; j < quantPic.height(); j++) {
+    for (int i = 0; i < quantPic.width(); i++) {
+      const int texIdx = textureLookupTable.at(j / 16).at(i / 16);
+
+      auto [r, g, b] = avgColors.at(texIdx);
+
+      quantPic.set(i, j, r, g, b, 255);
+    }
+  }
+
+  quantPic.save("quantizedPic.png");
+}
+
+
 void createTexturedPic(const Picture &pic,
                        std::vector<std::vector<int>> textureLookupTable,
                        const std::vector<Picture> &validTextures) {
@@ -219,7 +240,7 @@ int main() {
   const std::vector<Picture> validTextures = getValidTextures(fPaths);
   const std::vector<ColorRGB> avgColors = getTextureAvgColors(validTextures);
 
-  Picture srcPic("rainbow.png");
+  Picture srcPic("warhammer.png");
   //   gaussianBlur(srcPic, 15);
 
   const std::vector<std::vector<int>> textureLookupTable =
@@ -227,7 +248,8 @@ int main() {
   //   const std::vector<std::vector<ColorRGB>> avgLookupTable =
   //       buildAvgLookupTable(srcPic);
 
-  createTexturedPic(srcPic, textureLookupTable, validTextures);
+  //   createTexturedPic(srcPic, textureLookupTable, validTextures);
+  createQuantizedPic(srcPic, textureLookupTable, avgColors);
   //   createAvgPic(srcPic, avgLookupTable);
   //   createAtlasPic(validTextures);
 }

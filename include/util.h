@@ -9,8 +9,8 @@ struct ColorRGB {
   int b;
 };
 
-struct ColorXYZ {
-  double x, y, z;
+struct ColorCIELab {
+  double lStar, aStar, bStar;
 };
 
 struct ColorLinRGB {
@@ -27,10 +27,8 @@ double distSquared(const Coord &colorA, const Coord &colorB);
 
 ColorRGB getAverageRGB(const Picture &pic, int originX, int originY);
 
-
 ColorRGB applyGamma(const ColorLinRGB &linearRGB);
 
-
-ColorXYZ rgbToCIE(const ColorLinRGB &colorLinRGB);
+ColorCIELab rgbToCIE(const ColorLinRGB &colorLinRGB);
 
 #endif

@@ -73,7 +73,7 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
 }
 
 
-ColorXYZ rgbToCIE(const ColorLinRGB &colorLinRGB) {
+ColorCIELab rgbToCIE(const ColorLinRGB &colorLinRGB) {
   // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
   constexpr std::array<std::array<double, 3>, 3> rgbToCIEMatrix = {
       {{0.4124564, 0.3575761, 0.1804375},
@@ -87,15 +87,15 @@ ColorXYZ rgbToCIE(const ColorLinRGB &colorLinRGB) {
 }
 
 
-ColorLinRGB cieToRGB(const ColorXYZ &cieColor) {
+ColorLinRGB cieToRGB(const ColorCIELab &cieColor) {
   constexpr std::array<std::array<double, 3>, 3> cieToRGBMatrix = {{
       {3.2404542, -1.5371385, -0.4985314},
       {-0.9692660, 1.8760108, 0.0415560},
       {0.0556434, -0.2040259, 1.0572252},
   }};
 
-  std::array<double, 3> linRgb =
-      multiplyMatrix(cieToRGBMatrix, {cieColor.x, cieColor.y, cieColor.z});
+  std::array<double, 3> linRgb = multiplyMatrix(
+      cieToRGBMatrix, {cieColor.lStar, cieColor.aStar, cieColor.bStar});
 
   return {linRgb[0], linRgb[1], linRgb[2]};
 }
