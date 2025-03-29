@@ -39,13 +39,36 @@ Color getAverageRGB(const Picture &pic) {
   int g = 0;
 
   int numPx = 0;
-  for (int i = 0; i < pic.height(); i++) {
-    for (int j = 0; j < pic.width(); j++) {
+  for (int j = 0; j < pic.height(); j++) {
+    for (int i = 0; i < pic.width(); i++) {
 
       /* Sum the squares of components instead */
-      r += pic.red(j, i) * pic.red(j, i);
-      g += pic.green(j, i) * pic.green(j, i);
-      b += pic.blue(j, i) * pic.blue(j, i);
+      r += pic.red(i, j) * pic.red(i, j);
+      g += pic.green(i, j) * pic.green(i, j);
+      b += pic.blue(i, j) * pic.blue(i, j);
+
+      ++numPx;
+    }
+  }
+  /* Return the sqrt of the mean of squared R, G, and B sums */
+  return {int(std::round(sqrt(r / numPx))), int(std::round(sqrt(g / numPx))),
+          int(std::round(sqrt(b / numPx)))};
+}
+
+Color getAverageRGB(const Picture &pic, int originX, int originY) {
+
+  int r = 0;
+  int b = 0;
+  int g = 0;
+
+  int numPx = 0;
+  for (int j = originY; j < originY + 16; j++) {
+    for (int i = originX; i < originX + 16; i++) {
+
+      /* Sum the squares of components instead */
+      r += pic.red(i, j) * pic.red(i, j);
+      g += pic.green(i, j) * pic.green(i, j);
+      b += pic.blue(i, j) * pic.blue(i, j);
 
       ++numPx;
     }
@@ -184,14 +207,39 @@ void createTestPic(const Color &exactColor,
 }
 
 int main() {
-  const std::string dir = "./blocks";
+  //   const std::string dir = "./blocks";
 
-  const std::vector<std::string> fPaths = getValidPaths(dir);
-  const std::vector<Picture> validTextures = getValidTextures(fPaths);
-  const std::vector<Color> quantColors = buildQuantizedColors(validTextures);
+  //   const std::vector<std::string> fPaths = getValidPaths(dir);
+  //   const std::vector<Picture> validTextures = getValidTextures(fPaths);
+  //   const std::vector<Color> quantColors =
+  //   buildQuantizedColors(validTextures);
 
-  const Color testColor = {167, 118, 96};
-  createTestPic(testColor, validTextures, quantColors);
+  //   const Color testColor = {167, 118, 96};
+  //   createTestPic(testColor, validTextures, quantColors);
+
+  Picture pic("lotus.png");
+
+  const int cellsHorizontal = pic.width() / 16;
+  const int cellsVertical = pic.height() / 16;
+  std::vector<std::vector<Color>> avgColors(
+      cellsVertical, std::vector<Color>(cellsHorizontal));
+
+  for (size_t j = 0; j < pic.height(); j += 16) {
+    for (size_t i = 0; i < pic.width(); i += 16) {
+      avgColors.at(j / 16).at(i / 16) = getAverageRGB(pic, i, j);
+    }
+  }
+
+  Picture quantPic(pic.width(), pic.height(), 0, 0, 0);
+
+  for (size_t j = 0; j < quantPic.height(); j++) {
+    for (size_t i = 0; i < quantPic.width(); i++) {
+      auto [avgR, avgG, avgB] = avgColors.at(j / 16).at(i / 16);
+      quantPic.set(i, j, avgR, avgG, avgB, 255);
+    }
+  }
+
+  quantPic.save("quantPic.png");
 
   //   buildAtlas(validTextures);
 }
