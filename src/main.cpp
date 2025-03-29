@@ -182,6 +182,84 @@ void buildAtlas(const std::vector<Picture> &validTextures) {
   atlas.save("atlas.png");
 }
 
+std::vector<std::vector<int>>
+buildTextureMap(const Picture &pic, const std::vector<Color> &quantColors) {
+  const int cHorizontal = pic.width() / 16;
+  const int cVertical = pic.height() / 16;
+
+  std::vector<std::vector<Color>> avgColors(cVertical,
+                                            std::vector<Color>(cHorizontal));
+  std::vector<std::vector<int>> textureMap(cVertical,
+                                           std::vector<int>(cHorizontal));
+
+  for (int j = 0; j < pic.height(); j += 16) {
+    for (int i = 0; i < pic.width(); i += 16) {
+
+      const Color avgColor = getAverageRGB(pic, i, j);
+      avgColors.at(j / 16).at(i / 16) = avgColor;
+
+      const int texIdx = findNearestColor(avgColor, quantColors);
+      textureMap.at(j / 16).at(i / 16) = texIdx;
+    }
+  }
+
+  return textureMap;
+}
+
+std::vector<std::vector<Color>> buildAvgMap(const Picture &pic) {
+  const int cHorizontal = pic.width() / 16;
+  const int cVertical = pic.height() / 16;
+
+  std::vector<std::vector<Color>> avgColors(cVertical,
+                                            std::vector<Color>(cHorizontal));
+
+  for (int j = 0; j < pic.height(); j += 16) {
+    for (int i = 0; i < pic.width(); i += 16) {
+
+      const Color avgColor = getAverageRGB(pic, i, j);
+      avgColors.at(j / 16).at(i / 16) = avgColor;
+    }
+  }
+
+  return avgColors;
+}
+
+void createTexturesPic(const Picture &pic,
+                       std::vector<std::vector<int>> textureMap,
+                       const std::vector<Picture> &validTextures) {
+
+  Picture quantPic(pic.width(), pic.height(), 0, 0, 0);
+
+  for (int j = 0; j < quantPic.height(); j++) {
+    for (int i = 0; i < quantPic.width(); i++) {
+      const int texIdx = textureMap.at(j / 16).at(i / 16);
+
+      int r = validTextures.at(texIdx).red(i % 16, j % 16);
+      int g = validTextures.at(texIdx).green(i % 16, j % 16);
+      int b = validTextures.at(texIdx).blue(i % 16, j % 16);
+
+      quantPic.set(i, j, r, g, b, 255);
+    }
+  }
+
+  quantPic.save("quantPic.png");
+}
+
+void createAvgPic(const Picture &pic,
+                  const std::vector<std::vector<Color>> &avgColors) {
+
+  Picture avgPic(pic.width(), pic.height(), 0, 0, 0);
+
+  for (int j = 0; j < avgPic.height(); j++) {
+    for (int i = 0; i < avgPic.width(); i++) {
+      auto [avgR, avgG, avgB] = avgColors.at(j / 16).at(i / 16);
+      avgPic.set(i, j, avgR, avgG, avgB, 255);
+    }
+  }
+
+  avgPic.save("avgPic.png");
+}
+
 void createTestPic(const Color &exactColor,
                    const std::vector<Picture> &validTextures,
                    const std::vector<Color> &quantColors) {
@@ -208,53 +286,20 @@ void createTestPic(const Color &exactColor,
 }
 
 int main() {
-  Timer timer;
   const std::string dir = "./blocks";
-
   const std::vector<std::string> fPaths = getValidPaths(dir);
   const std::vector<Picture> validTextures = getValidTextures(fPaths);
   const std::vector<Color> quantColors = buildQuantizedColors(validTextures);
 
   Picture pic("warhammer.png");
 
-  const int cHorizontal = pic.width() / 16;
-  const int cVertical = pic.height() / 16;
+  const auto textureMap = buildTextureMap(pic, quantColors);
+  createTexturesPic(pic, textureMap, validTextures);
 
-  std::vector<std::vector<Color>> avgColors(cVertical,
-                                            std::vector<Color>(cHorizontal));
-  std::vector<std::vector<int>> textureMap(cVertical,
-                                           std::vector<int>(cHorizontal));
+  const std::vector<std::vector<Color>> avgMap = buildAvgMap(pic);
+  createAvgPic(pic, avgMap);
 
-  for (int j = 0; j < pic.height(); j += 16) {
-    for (int i = 0; i < pic.width(); i += 16) {
-
-      const Color avgColor = getAverageRGB(pic, i, j);
-      avgColors.at(j / 16).at(i / 16) = avgColor;
-
-      const int texIdx = findNearestColor(avgColor, quantColors);
-      textureMap.at(j / 16).at(i / 16) = texIdx;
-    }
-  }
-
-  Picture quantPic(pic.width(), pic.height(), 0, 0, 0);
-
-  for (int j = 0; j < quantPic.height(); j++) {
-    for (int i = 0; i < quantPic.width(); i++) {
-      //   auto [avgR, avgG, avgB] = avgColors.at(j / 16).at(i / 16);
-      //   quantPic.set(i, j, avgR, avgG, avgB, 255);
-      const int texIdx = textureMap.at(j / 16).at(i / 16);
-
-      int r = validTextures.at(texIdx).red(i % 16, j % 16);
-      int g = validTextures.at(texIdx).green(i % 16, j % 16);
-      int b = validTextures.at(texIdx).blue(i % 16, j % 16);
-
-      quantPic.set(i, j, r, g, b, 255);
-    }
-  }
-
-  quantPic.save("quantPic.png");
-
-  //   const Color testColor = {167, 118, 96};
-  // createTestPic(testColor, validTextures, quantColors);
-  //   buildAtlas(validTextures);
+  const Color testColor = {167, 118, 96};
+  createTestPic(testColor, validTextures, quantColors);
+  buildAtlas(validTextures);
 }
