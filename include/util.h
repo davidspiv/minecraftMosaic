@@ -3,14 +3,34 @@
 
 #include "../include/picture.h"
 
-struct Color {
+struct ColorRGB {
   int r;
   int g;
   int b;
 };
 
-double distSquared(const Color &colorA, const Color &colorB);
+struct ColorXYZ {
+  double x, y, z;
+};
 
-Color getAverageRGB(const Picture &pic, int originX, int originY);
+struct ColorLinRGB {
+  double r, g, b;
+};
+
+struct Coord {
+  double x, y, z;
+};
+
+ColorLinRGB linearize(const ColorRGB &sRGB);
+
+double distSquared(const Coord &colorA, const Coord &colorB);
+
+ColorRGB getAverageRGB(const Picture &pic, int originX, int originY);
+
+
+ColorRGB applyGamma(const ColorLinRGB &linearRGB);
+
+
+ColorXYZ rgbToCIE(const ColorLinRGB &colorLinRGB);
 
 #endif
