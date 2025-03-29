@@ -9,41 +9,6 @@
 #include <string>
 #include <vector>
 
-double distSquared(const Color &colorA, const Color &colorB) {
-  const double rD = colorB.r - colorA.r;
-  const double gD = colorB.g - colorA.g;
-  const double bD = colorB.b - colorA.b;
-  return rD * rD + gD * gD + bD * bD;
-}
-
-Color getAverageRGB(const Picture &pic, int originX, int originY) {
-  // https://sighack.com/post/averaging-rgb-colors-the-right-way
-
-  double r = 0;
-  double b = 0;
-  double g = 0;
-
-  int numPx = 0;
-  for (int j = originY; j < originY + 16; j++) {
-    for (int i = originX; i < originX + 16; i++) {
-
-      const double rComponent = linearizeRGB(pic.red(i, j));
-      const double gComponent = linearizeRGB(pic.green(i, j));
-      const double bComponent = linearizeRGB(pic.blue(i, j));
-
-      /* Sum the squares of components instead */
-      r += rComponent * rComponent;
-      g += gComponent * gComponent;
-      b += bComponent * bComponent;
-
-      ++numPx;
-    }
-  }
-  /* Return the sqrt of the mean of squared R, G, and B sums */
-  return {delinearizeRGB(sqrt(r / numPx)), delinearizeRGB(sqrt(g / numPx)),
-          delinearizeRGB(sqrt(b / numPx))};
-}
-
 
 std::vector<std::string> getValidPaths(std::string dir) {
   std::vector<std::string> fPaths;
@@ -59,6 +24,7 @@ std::vector<std::string> getValidPaths(std::string dir) {
 
   return fPaths;
 }
+
 
 std::vector<Picture> getValidTextures(std::vector<std::string> fPaths) {
   const size_t numTiles = fPaths.size();
@@ -89,27 +55,28 @@ std::vector<Picture> getValidTextures(std::vector<std::string> fPaths) {
   return validTextures;
 }
 
+
 std::vector<Color>
-buildQuantizedColors(const std::vector<Picture> &validTextures) {
+getTextureAvgColors(const std::vector<Picture> &validTextures) {
   const size_t numValidTiles = validTextures.size();
-  std::vector<Color> quantColors(numValidTiles, Color());
+  std::vector<Color> avgColors(numValidTiles, Color());
 
   for (size_t i = 0; i < numValidTiles; i++) {
     Picture pic(validTextures[i]);
-    Color averageRGB = getAverageRGB(pic, 0, 0);
-    quantColors.at(i) = averageRGB;
+    avgColors.at(i) = getAverageRGB(pic, 0, 0);
   }
 
-  return quantColors;
+  return avgColors;
 }
 
-int findNearestColor(const Color &target,
+
+int findNearestColor(const Color &targetColor,
                      const std::vector<Color> &quantColors) {
   int nearest = 0;
   double minDist = std::numeric_limits<double>::max();
 
   for (size_t i = 0; i < quantColors.size(); i++) {
-    double dist = distSquared(target, quantColors.at(i));
+    double dist = distSquared(targetColor, quantColors.at(i));
     if (dist < minDist) {
       minDist = dist;
       nearest = i;
@@ -119,7 +86,53 @@ int findNearestColor(const Color &target,
   return nearest;
 }
 
-void buildAtlas(const std::vector<Picture> &validTextures) {
+
+std::vector<std::vector<int>>
+buildTextureLookupTable(const Picture &pic,
+                        const std::vector<Color> &quantColors) {
+  const int cHorizontal = pic.width() / 16;
+  const int cVertical = pic.height() / 16;
+
+  std::vector<std::vector<Color>> avgColors(cVertical,
+                                            std::vector<Color>(cHorizontal));
+  std::vector<std::vector<int>> textureLookupTable(
+      cVertical, std::vector<int>(cHorizontal));
+
+  for (int j = 0; j < pic.height(); j += 16) {
+    for (int i = 0; i < pic.width(); i += 16) {
+
+      const Color avgColor = getAverageRGB(pic, i, j);
+      avgColors.at(j / 16).at(i / 16) = avgColor;
+
+      const int texIdx = findNearestColor(avgColor, quantColors);
+      textureLookupTable.at(j / 16).at(i / 16) = texIdx;
+    }
+  }
+
+  return textureLookupTable;
+}
+
+
+std::vector<std::vector<Color>> buildAvgLookupTable(const Picture &pic) {
+  const int cHorizontal = pic.width() / 16;
+  const int cVertical = pic.height() / 16;
+
+  std::vector<std::vector<Color>> avgColors(cVertical,
+                                            std::vector<Color>(cHorizontal));
+
+  for (int j = 0; j < pic.height(); j += 16) {
+    for (int i = 0; i < pic.width(); i += 16) {
+
+      const Color avgColor = getAverageRGB(pic, i, j);
+      avgColors.at(j / 16).at(i / 16) = avgColor;
+    }
+  }
+
+  return avgColors;
+}
+
+
+void createAtlasPic(const std::vector<Picture> &validTextures) {
   const int tileSize = 16;
   const size_t numValidTiles = validTextures.size();
   const int gridSize =
@@ -148,57 +161,16 @@ void buildAtlas(const std::vector<Picture> &validTextures) {
   atlas.save("atlas.png");
 }
 
-std::vector<std::vector<int>>
-buildTextureMap(const Picture &pic, const std::vector<Color> &quantColors) {
-  const int cHorizontal = pic.width() / 16;
-  const int cVertical = pic.height() / 16;
-
-  std::vector<std::vector<Color>> avgColors(cVertical,
-                                            std::vector<Color>(cHorizontal));
-  std::vector<std::vector<int>> textureMap(cVertical,
-                                           std::vector<int>(cHorizontal));
-
-  for (int j = 0; j < pic.height(); j += 16) {
-    for (int i = 0; i < pic.width(); i += 16) {
-
-      const Color avgColor = getAverageRGB(pic, i, j);
-      avgColors.at(j / 16).at(i / 16) = avgColor;
-
-      const int texIdx = findNearestColor(avgColor, quantColors);
-      textureMap.at(j / 16).at(i / 16) = texIdx;
-    }
-  }
-
-  return textureMap;
-}
-
-std::vector<std::vector<Color>> buildAvgMap(const Picture &pic) {
-  const int cHorizontal = pic.width() / 16;
-  const int cVertical = pic.height() / 16;
-
-  std::vector<std::vector<Color>> avgColors(cVertical,
-                                            std::vector<Color>(cHorizontal));
-
-  for (int j = 0; j < pic.height(); j += 16) {
-    for (int i = 0; i < pic.width(); i += 16) {
-
-      const Color avgColor = getAverageRGB(pic, i, j);
-      avgColors.at(j / 16).at(i / 16) = avgColor;
-    }
-  }
-
-  return avgColors;
-}
 
 void createTexturesPic(const Picture &pic,
-                       std::vector<std::vector<int>> textureMap,
+                       std::vector<std::vector<int>> textureLookupTable,
                        const std::vector<Picture> &validTextures) {
 
   Picture quantPic(pic.width(), pic.height(), 0, 0, 0);
 
   for (int j = 0; j < quantPic.height(); j++) {
     for (int i = 0; i < quantPic.width(); i++) {
-      const int texIdx = textureMap.at(j / 16).at(i / 16);
+      const int texIdx = textureLookupTable.at(j / 16).at(i / 16);
 
       int r = validTextures.at(texIdx).red(i % 16, j % 16);
       int g = validTextures.at(texIdx).green(i % 16, j % 16);
@@ -210,6 +182,7 @@ void createTexturesPic(const Picture &pic,
 
   quantPic.save("quantPic.png");
 }
+
 
 void createAvgPic(const Picture &pic,
                   const std::vector<std::vector<Color>> &avgColors) {
@@ -226,48 +199,22 @@ void createAvgPic(const Picture &pic,
   avgPic.save("avgPic.png");
 }
 
-void createTestPic(const Color &exactColor,
-                   const std::vector<Picture> &validTextures,
-                   const std::vector<Color> &quantColors) {
-
-  auto [exactR, exactG, exactB] = exactColor;
-  Picture testPic(32, 16, exactR, exactG, exactB);
-
-  const int texIdx = findNearestColor({exactR, exactG, exactB}, quantColors);
-
-
-  for (int j = 0; j < testPic.height(); j++) {
-    for (int i = testPic.width() / 2; i < testPic.width(); i++) {
-
-
-      int r = validTextures.at(texIdx).red(i - (testPic.width() / 2), j);
-      int g = validTextures.at(texIdx).green(i - (testPic.width() / 2), j);
-      int b = validTextures.at(texIdx).blue(i - (testPic.width() / 2), j);
-
-      testPic.set(i, j, r, g, b, 255);
-    }
-  }
-
-  testPic.save("testPic.png");
-}
 
 int main() {
   Timer timer;
-  //   const std::string dir = "./blocks";
-  //   const std::vector<std::string> fPaths = getValidPaths(dir);
-  //   const std::vector<Picture> validTextures = getValidTextures(fPaths);
-  //   const std::vector<Color> quantColors =
-  //   buildQuantizedColors(validTextures);
+  const std::string dir = "./blocks";
+  const std::vector<std::string> fPaths = getValidPaths(dir);
+  const std::vector<Picture> validTextures = getValidTextures(fPaths);
+  const std::vector<Color> avgColors = getTextureAvgColors(validTextures);
 
-  Picture pic("warhammer.png");
+  const Picture srcPic("warhammer.png");
 
-  //   const auto textureMap = buildTextureMap(pic, quantColors);
-  //   createTexturesPic(pic, textureMap, validTextures);
+  const std::vector<std::vector<int>> textureLookupTable =
+      buildTextureLookupTable(srcPic, avgColors);
+  const std::vector<std::vector<Color>> avgLookupTable =
+      buildAvgLookupTable(srcPic);
 
-  const std::vector<std::vector<Color>> avgMap = buildAvgMap(pic);
-  createAvgPic(pic, avgMap);
-
-  //   const Color testColor = {167, 118, 96};
-  //   createTestPic(testColor, validTextures, quantColors);
-  //   buildAtlas(validTextures);
+  createTexturesPic(srcPic, textureLookupTable, validTextures);
+  createAvgPic(srcPic, avgLookupTable);
+  createAtlasPic(validTextures);
 }
