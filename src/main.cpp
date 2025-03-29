@@ -215,7 +215,7 @@ int main() {
   const std::vector<Picture> validTextures = getValidTextures(fPaths);
   const std::vector<Color> quantColors = buildQuantizedColors(validTextures);
 
-  Picture pic("lotus.png");
+  Picture pic("warhammer.png");
 
   const int cHorizontal = pic.width() / 16;
   const int cVertical = pic.height() / 16;
