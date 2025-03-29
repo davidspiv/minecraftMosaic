@@ -1,5 +1,6 @@
 build/main.o: src/main.cpp /usr/include/stdc-predef.h \
- src/../include/picture.h /usr/include/c++/11/string \
+ src/../include/gaussianBlur.h src/../include/picture.h \
+ /usr/include/c++/11/string \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -131,12 +132,10 @@ build/main.o: src/main.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc src/../include/lodepng.h \
- /usr/include/string.h /usr/include/strings.h src/../include/timer.h \
- /usr/include/c++/11/chrono /usr/include/c++/11/ratio \
- /usr/include/c++/11/limits /usr/include/c++/11/ctime \
- /usr/include/c++/11/bits/parse_numbers.h /usr/include/c++/11/iostream \
- /usr/include/c++/11/ostream /usr/include/c++/11/ios \
- /usr/include/c++/11/exception /usr/include/c++/11/bits/exception_ptr.h \
+ /usr/include/string.h /usr/include/strings.h \
+ /usr/include/c++/11/iostream /usr/include/c++/11/ostream \
+ /usr/include/c++/11/ios /usr/include/c++/11/exception \
+ /usr/include/c++/11/bits/exception_ptr.h \
  /usr/include/c++/11/bits/cxxabi_init_exception.h \
  /usr/include/c++/11/typeinfo /usr/include/c++/11/bits/nested_exception.h \
  /usr/include/c++/11/bits/ios_base.h \
@@ -155,9 +154,13 @@ build/main.o: src/main.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/locale_facets.tcc \
  /usr/include/c++/11/bits/basic_ios.tcc \
  /usr/include/c++/11/bits/ostream.tcc /usr/include/c++/11/istream \
- /usr/include/c++/11/bits/istream.tcc src/../include/util.h \
- src/../include/../include/picture.h /usr/include/c++/11/cmath \
- /usr/include/math.h /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+ /usr/include/c++/11/bits/istream.tcc src/../include/picture.h \
+ src/../include/timer.h /usr/include/c++/11/chrono \
+ /usr/include/c++/11/ratio /usr/include/c++/11/limits \
+ /usr/include/c++/11/ctime /usr/include/c++/11/bits/parse_numbers.h \
+ src/../include/util.h src/../include/../include/picture.h \
+ /usr/include/c++/11/cmath /usr/include/math.h \
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
@@ -204,6 +207,7 @@ build/main.o: src/main.cpp /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
  /usr/include/c++/11/bits/fstream.tcc
 /usr/include/stdc-predef.h:
+src/../include/gaussianBlur.h:
 src/../include/picture.h:
 /usr/include/c++/11/string:
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
@@ -362,12 +366,6 @@ src/../include/picture.h:
 src/../include/lodepng.h:
 /usr/include/string.h:
 /usr/include/strings.h:
-src/../include/timer.h:
-/usr/include/c++/11/chrono:
-/usr/include/c++/11/ratio:
-/usr/include/c++/11/limits:
-/usr/include/c++/11/ctime:
-/usr/include/c++/11/bits/parse_numbers.h:
 /usr/include/c++/11/iostream:
 /usr/include/c++/11/ostream:
 /usr/include/c++/11/ios:
@@ -397,6 +395,13 @@ src/../include/timer.h:
 /usr/include/c++/11/bits/ostream.tcc:
 /usr/include/c++/11/istream:
 /usr/include/c++/11/bits/istream.tcc:
+src/../include/picture.h:
+src/../include/timer.h:
+/usr/include/c++/11/chrono:
+/usr/include/c++/11/ratio:
+/usr/include/c++/11/limits:
+/usr/include/c++/11/ctime:
+/usr/include/c++/11/bits/parse_numbers.h:
 src/../include/util.h:
 src/../include/../include/picture.h:
 /usr/include/c++/11/cmath:

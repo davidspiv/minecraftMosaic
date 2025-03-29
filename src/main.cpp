@@ -1,3 +1,4 @@
+#include "../include/gaussianBlur.h"
 #include "../include/picture.h"
 #include "../include/timer.h"
 #include "../include/util.h"
@@ -162,25 +163,25 @@ void createAtlasPic(const std::vector<Picture> &validTextures) {
 }
 
 
-void createTexturesPic(const Picture &pic,
+void createTexturedPic(const Picture &pic,
                        std::vector<std::vector<int>> textureLookupTable,
                        const std::vector<Picture> &validTextures) {
 
-  Picture quantPic(pic.width(), pic.height(), 0, 0, 0);
+  Picture texturedPic(pic.width(), pic.height(), 0, 0, 0);
 
-  for (int j = 0; j < quantPic.height(); j++) {
-    for (int i = 0; i < quantPic.width(); i++) {
+  for (int j = 0; j < texturedPic.height(); j++) {
+    for (int i = 0; i < texturedPic.width(); i++) {
       const int texIdx = textureLookupTable.at(j / 16).at(i / 16);
 
       int r = validTextures.at(texIdx).red(i % 16, j % 16);
       int g = validTextures.at(texIdx).green(i % 16, j % 16);
       int b = validTextures.at(texIdx).blue(i % 16, j % 16);
 
-      quantPic.set(i, j, r, g, b, 255);
+      texturedPic.set(i, j, r, g, b, 255);
     }
   }
 
-  quantPic.save("quantPic.png");
+  texturedPic.save("texturedPic.png");
 }
 
 
@@ -207,14 +208,15 @@ int main() {
   const std::vector<Picture> validTextures = getValidTextures(fPaths);
   const std::vector<Color> avgColors = getTextureAvgColors(validTextures);
 
-  const Picture srcPic("warhammer.png");
+  Picture srcPic("warhammer.png");
+  gaussianBlur(srcPic, 15);
 
   const std::vector<std::vector<int>> textureLookupTable =
       buildTextureLookupTable(srcPic, avgColors);
   const std::vector<std::vector<Color>> avgLookupTable =
       buildAvgLookupTable(srcPic);
 
-  createTexturesPic(srcPic, textureLookupTable, validTextures);
+  createTexturedPic(srcPic, textureLookupTable, validTextures);
   createAvgPic(srcPic, avgLookupTable);
   createAtlasPic(validTextures);
 }
