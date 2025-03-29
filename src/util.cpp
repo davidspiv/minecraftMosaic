@@ -34,6 +34,21 @@ ColorRGB getAverageRGB(const Picture &pic, int originX, int originY) {
 }
 
 
+std::vector<ColorRGB> getQuantizedColors() {
+  std::vector<ColorRGB> colors;
+
+  for (int i = 0; i <= 255; i += 15) {
+    for (int j = 0; j <= 255; j += 15) {
+      for (int k = 0; k <= 255; k += 15) {
+        colors.push_back({i, j, k});
+      }
+    }
+  }
+
+  return colors;
+}
+
+
 ColorLinRGB linearize(const ColorRGB &sRGB) {
   auto linearizeChannel = [](int c) -> double {
     double normalized = c / 255.0;
@@ -106,4 +121,57 @@ double distSquared(const Coord &colorA, const Coord &colorB) {
   const double yD = colorB.y - colorA.y;
   const double zD = colorB.z - colorA.z;
   return xD * xD + yD * yD + zD * zD;
+}
+
+
+size_t findClosestColorIdx(const ColorRGB &targetColor,
+                           const std::vector<ColorRGB> &quantColors) {
+  size_t closestColorIdx = 0;
+  double minDist = std::numeric_limits<double>::max();
+
+  const ColorCIELab tColorCEI = rgbToCIE(linearize(targetColor));
+  const Coord targetCoord = {tColorCEI.lStar, tColorCEI.aStar, tColorCEI.bStar};
+
+  for (size_t i = 0; i < quantColors.size(); i++) {
+
+    const ColorCIELab oColorCEI = rgbToCIE(linearize(quantColors.at(i)));
+    const Coord otherCoord = {oColorCEI.lStar, oColorCEI.aStar,
+                              oColorCEI.bStar};
+
+    double dist = distSquared(targetCoord, otherCoord);
+    if (dist < minDist) {
+      minDist = dist;
+      closestColorIdx = i;
+    }
+  }
+
+  return closestColorIdx;
+}
+
+
+std::vector<std::vector<int>>
+buildLookupTable(const Picture &pic, const std::vector<ColorRGB> &quantColors) {
+  const int cHorizontal = (pic.width() + blockSize - 1) / blockSize;
+  const int cVertical = (pic.height() + blockSize - 1) / blockSize;
+
+  std::vector<std::vector<ColorRGB>> avgColors(
+      cVertical, std::vector<ColorRGB>(cHorizontal));
+  std::vector<std::vector<int>> lookupTable(cVertical,
+                                            std::vector<int>(cHorizontal));
+
+  for (int j = 0; j < pic.height(); j += blockSize) {
+    for (int i = 0; i < pic.width(); i += blockSize) {
+
+      const ColorRGB avgColor = getAverageRGB(pic, i, j);
+      const int newJ = j / blockSize;
+      const int newI = i / blockSize;
+
+      avgColors.at(newJ).at(newI) = avgColor;
+
+      const int texIdx = findClosestColorIdx(avgColor, quantColors);
+      lookupTable.at(newJ).at(newI) = texIdx;
+    }
+  }
+
+  return lookupTable;
 }
