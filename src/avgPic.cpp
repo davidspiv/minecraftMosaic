@@ -32,5 +32,5 @@ void createAvgPic(const Picture &pic) {
     }
   }
 
-  avgPic.save("./srcPics/avgPic.png");
+  avgPic.save("./outputPics/avgPic.png");
 }

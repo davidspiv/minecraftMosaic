@@ -23,7 +23,7 @@ void createQuantizedPic(const Picture &srcPic) {
     }
   }
 
-  quantPic.save("./srcPics/quantizedPic.png");
+  quantPic.save("./outputPics/quantizedPic.png");
 }
 
 
@@ -52,5 +52,5 @@ void createAtlasPic(const std::vector<Picture> &validTextures) {
     }
   }
 
-  atlas.save("./srcPics/atlas.png");
+  atlas.save("./outputPics/atlas.png");
 }

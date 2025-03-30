@@ -3,4 +3,5 @@
 #include "picture.h"
 
 void createAvgPic(const Picture &pic);
+
 #endif

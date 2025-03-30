@@ -60,6 +60,7 @@ ColorLinRGB linearize(const ColorRGB &sRGB) {
           linearizeChannel(sRGB.b)};
 }
 
+
 ColorRGB applyGamma(const ColorLinRGB &linearRGB) {
 
   auto applyGammaToChannel = [](double c) -> int {
@@ -71,6 +72,7 @@ ColorRGB applyGamma(const ColorLinRGB &linearRGB) {
   return {applyGammaToChannel(linearRGB.r), applyGammaToChannel(linearRGB.g),
           applyGammaToChannel(linearRGB.b)};
 }
+
 
 std::array<double, 3>
 multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
