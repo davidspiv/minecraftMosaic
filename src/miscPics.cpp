@@ -76,8 +76,8 @@ void createQuantizedPic(const Picture &srcPic) {
       {57, 71, 120},   {57, 49, 75},    {86, 64, 100},   {142, 71, 140},
       {205, 96, 147},  {255, 174, 182}, {244, 180, 27},  {244, 126, 27}};
 
-  //   const std::vector<StdRGB> discreteColors = getQuantizedColors();
-  const std::vector<StdRGB> discreteColors = zughyPalette;
+  const std::vector<StdRGB> discreteColors = getQuantizedColors();
+  //   const std::vector<StdRGB> discreteColors = apolloPalette;
   const std::vector<std::vector<int>> lookupTable =
       buildLookupTable(srcPic, discreteColors);
 

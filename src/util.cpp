@@ -6,6 +6,15 @@
 #include <cmath>
 
 
+int distSquared(const StdRGB &colorA, const StdRGB &colorB) {
+
+  const int xD = colorB.r - colorA.r;
+  const int yD = colorB.g - colorA.g;
+  const int zD = colorB.b - colorA.b;
+  return xD * xD + yD * yD + zD * zD;
+}
+
+
 double distSquared(const LinRGB &colorA, const LinRGB &colorB) {
 
   const double xD = colorB.r - colorA.r;
@@ -20,14 +29,6 @@ double distSquared(const CieLab &colorA, const CieLab &colorB) {
   const double xD = colorB.lStar - colorA.lStar;
   const double yD = colorB.aStar - colorA.aStar;
   const double zD = colorB.bStar - colorA.bStar;
-  return xD * xD + yD * yD + zD * zD;
-}
-
-int distSquared(const StdRGB &colorA, const StdRGB &colorB) {
-
-  const int xD = colorB.r - colorA.r;
-  const int yD = colorB.g - colorA.g;
-  const int zD = colorB.b - colorA.b;
   return xD * xD + yD * yD + zD * zD;
 }
 
@@ -220,8 +221,6 @@ buildLookupTable(const Picture &pic, const std::vector<StdRGB> &quantColors) {
   const int cHorizontal = (pic.width() + blockSize - 1) / blockSize;
   const int cVertical = (pic.height() + blockSize - 1) / blockSize;
 
-  std::vector<std::vector<StdRGB>> avgColors(cVertical,
-                                             std::vector<StdRGB>(cHorizontal));
   std::vector<std::vector<int>> lookupTable(cVertical,
                                             std::vector<int>(cHorizontal));
 
@@ -229,12 +228,10 @@ buildLookupTable(const Picture &pic, const std::vector<StdRGB> &quantColors) {
     for (int i = 0; i < pic.width(); i += blockSize) {
 
       const StdRGB avgColor = getAverageRGB(pic, i, j);
+      const int texIdx = findClosestColorIdx(avgColor, quantColors);
+
       const int newJ = j / blockSize;
       const int newI = i / blockSize;
-
-      avgColors.at(newJ).at(newI) = avgColor;
-
-      const int texIdx = findClosestColorIdx(avgColor, quantColors);
       lookupTable.at(newJ).at(newI) = texIdx;
     }
   }
