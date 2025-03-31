@@ -81,6 +81,7 @@ void createTexturedPic(const Picture &srcPic,
     for (int i = 0; i < texturedPic.width(); i++) {
       const int texIdx = textureLookupTable.at(j / blockSize).at(i / blockSize);
 
+      //   auto [r, g, b] = textureAvgColors.at(texIdx);
       int r = validTextures.at(texIdx).red(i % blockSize, j % blockSize);
       int g = validTextures.at(texIdx).green(i % blockSize, j % blockSize);
       int b = validTextures.at(texIdx).blue(i % blockSize, j % blockSize);

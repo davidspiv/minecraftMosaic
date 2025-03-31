@@ -65,9 +65,9 @@ StdRGB getAverageRGB(const Picture &pic, int originX, int originY) {
       const CieLab cieLabComponent(stdRGB);
 
       /* Sum the squares of components */
-	  lStar += cieLabComponent.lStar;
-	  aStar += cieLabComponent.aStar;
-	  bStar += cieLabComponent.bStar;
+      lStar += cieLabComponent.lStar;
+      aStar += cieLabComponent.aStar;
+      bStar += cieLabComponent.bStar;
 
       ++numPx;
     }

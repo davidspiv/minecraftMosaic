@@ -23,11 +23,11 @@ StdRGB::StdRGB(int r, int g, int b) : r(r), g(g), b(b) {
 StdRGB::StdRGB(const CieLab &cieLab) {
   CieXYZ cieXYZ = labToXYZ(cieLab);
   LinRGB linRgb = xyzToRGB(cieXYZ);
-  auto [r, b, g] = applyGamma(linRgb);
+  auto [r, g, b] = applyGamma(linRgb);
 
   this->r = r;
-  this->b = g;
-  this->g = b;
+  this->g = g;
+  this->b = b;
 };
 
 
