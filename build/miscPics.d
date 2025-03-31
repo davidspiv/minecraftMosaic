@@ -1,5 +1,6 @@
 build/miscPics.o: src/miscPics.cpp /usr/include/stdc-predef.h \
- src/../include/picture.h /usr/include/c++/11/string \
+ src/../include/color.h src/../include/../include/picture.h \
+ /usr/include/c++/11/string \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -130,10 +131,17 @@ build/miscPics.o: src/miscPics.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
- /usr/include/c++/11/bits/vector.tcc src/../include/lodepng.h \
- /usr/include/string.h /usr/include/strings.h src/../include/util.h \
- src/../include/../include/picture.h /usr/include/c++/11/cmath \
- /usr/include/math.h /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+ /usr/include/c++/11/bits/vector.tcc src/../include/../include/lodepng.h \
+ /usr/include/string.h /usr/include/strings.h \
+ /usr/include/c++/11/stdexcept /usr/include/c++/11/exception \
+ /usr/include/c++/11/bits/exception_ptr.h \
+ /usr/include/c++/11/bits/cxxabi_init_exception.h \
+ /usr/include/c++/11/typeinfo /usr/include/c++/11/bits/nested_exception.h \
+ src/../include/picture.h src/../include/util.h \
+ src/../include/../include/color.h /usr/include/c++/11/array \
+ /usr/include/c++/11/utility /usr/include/c++/11/bits/stl_relops.h \
+ /usr/include/c++/11/cmath /usr/include/math.h \
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
@@ -156,7 +164,8 @@ build/miscPics.o: src/miscPics.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/tr1/poly_laguerre.tcc \
  /usr/include/c++/11/tr1/riemann_zeta.tcc
 /usr/include/stdc-predef.h:
-src/../include/picture.h:
+src/../include/color.h:
+src/../include/../include/picture.h:
 /usr/include/c++/11/string:
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
 /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h:
@@ -311,11 +320,21 @@ src/../include/picture.h:
 /usr/include/c++/11/bits/stl_vector.h:
 /usr/include/c++/11/bits/stl_bvector.h:
 /usr/include/c++/11/bits/vector.tcc:
-src/../include/lodepng.h:
+src/../include/../include/lodepng.h:
 /usr/include/string.h:
 /usr/include/strings.h:
+/usr/include/c++/11/stdexcept:
+/usr/include/c++/11/exception:
+/usr/include/c++/11/bits/exception_ptr.h:
+/usr/include/c++/11/bits/cxxabi_init_exception.h:
+/usr/include/c++/11/typeinfo:
+/usr/include/c++/11/bits/nested_exception.h:
+src/../include/picture.h:
 src/../include/util.h:
-src/../include/../include/picture.h:
+src/../include/../include/color.h:
+/usr/include/c++/11/array:
+/usr/include/c++/11/utility:
+/usr/include/c++/11/bits/stl_relops.h:
 /usr/include/c++/11/cmath:
 /usr/include/math.h:
 /usr/include/x86_64-linux-gnu/bits/math-vector.h:

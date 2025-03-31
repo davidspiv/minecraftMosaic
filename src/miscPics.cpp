@@ -1,3 +1,4 @@
+#include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/util.h"
 
@@ -6,7 +7,7 @@
 
 void createQuantizedPic(const Picture &srcPic) {
 
-  const std::vector<ColorRGB> discreteColors = getQuantizedColors();
+  const std::vector<StdRGB> discreteColors = getQuantizedColors();
   const std::vector<std::vector<int>> lookupTable =
       buildLookupTable(srcPic, discreteColors);
 

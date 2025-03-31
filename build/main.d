@@ -157,10 +157,13 @@ build/main.o: src/main.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/istream.tcc src/../include/miscPics.h \
  src/../include/../include/picture.h src/../include/picture.h \
  src/../include/texturePic.h src/../include/../include/util.h \
- src/../include/../include/../include/picture.h src/../include/timer.h \
- /usr/include/c++/11/chrono /usr/include/c++/11/ratio \
- /usr/include/c++/11/limits /usr/include/c++/11/ctime \
- /usr/include/c++/11/bits/parse_numbers.h
+ src/../include/../include/../include/color.h \
+ src/../include/../include/../include/../include/picture.h \
+ src/../include/../include/../include/picture.h /usr/include/c++/11/array \
+ /usr/include/c++/11/utility /usr/include/c++/11/bits/stl_relops.h \
+ src/../include/timer.h /usr/include/c++/11/chrono \
+ /usr/include/c++/11/ratio /usr/include/c++/11/limits \
+ /usr/include/c++/11/ctime /usr/include/c++/11/bits/parse_numbers.h
 /usr/include/stdc-predef.h:
 src/../include/avgPic.h:
 src/../include/picture.h:
@@ -356,7 +359,12 @@ src/../include/../include/picture.h:
 src/../include/picture.h:
 src/../include/texturePic.h:
 src/../include/../include/util.h:
+src/../include/../include/../include/color.h:
+src/../include/../include/../include/../include/picture.h:
 src/../include/../include/../include/picture.h:
+/usr/include/c++/11/array:
+/usr/include/c++/11/utility:
+/usr/include/c++/11/bits/stl_relops.h:
 src/../include/timer.h:
 /usr/include/c++/11/chrono:
 /usr/include/c++/11/ratio:

@@ -1,17 +1,19 @@
+#include "../include/color.h"
 #include "../include/util.h"
+
 #include <vector>
 
-std::vector<std::vector<ColorRGB>> getAvgColorPerBlock(const Picture &pic) {
+std::vector<std::vector<StdRGB>> getAvgColorPerBlock(const Picture &pic) {
   const int cHorizontal = pic.width() / blockSize;
   const int cVertical = pic.height() / blockSize;
 
-  std::vector<std::vector<ColorRGB>> avgColors(
-      cVertical, std::vector<ColorRGB>(cHorizontal));
+  std::vector<std::vector<StdRGB>> avgColors(cVertical,
+                                             std::vector<StdRGB>(cHorizontal));
 
   for (int j = 0; j < pic.height(); j += blockSize) {
     for (int i = 0; i < pic.width(); i += blockSize) {
 
-      const ColorRGB avgColor = getAverageRGB(pic, i, j);
+      const StdRGB avgColor = getAverageRGB(pic, i, j);
       avgColors.at(j / blockSize).at(i / blockSize) = avgColor;
     }
   }
@@ -22,7 +24,7 @@ std::vector<std::vector<ColorRGB>> getAvgColorPerBlock(const Picture &pic) {
 
 void createAvgPic(const Picture &pic) {
 
-  const std::vector<std::vector<ColorRGB>> avgColors = getAvgColorPerBlock(pic);
+  const std::vector<std::vector<StdRGB>> avgColors = getAvgColorPerBlock(pic);
   Picture avgPic(pic.width(), pic.height(), 0, 0, 0);
 
   for (int j = 0; j < avgPic.height(); j++) {

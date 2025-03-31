@@ -1,44 +1,34 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "../include/color.h"
 #include "../include/picture.h"
 
-struct ColorRGB {
-  int r;
-  int g;
-  int b;
-};
-
-struct ColorCIELab {
-  double lStar, aStar, bStar;
-};
-
-struct ColorLinRGB {
-  double r, g, b;
-};
-
-struct Coord {
-  double x, y, z;
-};
+#include <array>
+#include <vector>
 
 constexpr int blockSize = 16;
 
-ColorRGB getAverageRGB(const Picture &pic, int originX, int originY);
+template <typename CoordT>
+double distSquared(const CoordT &coordA, const CoordT &coordB) {
+  const double xD = coordB.lStar - coordA.lStar;
+  const double yD = coordB.aStar - coordA.aStar;
+  const double zD = coordB.bStar - coordA.bStar;
+  return xD * xD + yD * yD + zD * zD;
+}
 
-std::vector<ColorRGB> getQuantizedColors();
+std::array<double, 3>
+multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
+               const std::array<double, 3> &vector);
 
-ColorLinRGB linearize(const ColorRGB &sRGB);
+StdRGB getAverageRGB(const Picture &pic, int originX, int originY);
 
-double distSquared(const Coord &colorA, const Coord &colorB);
-
-ColorRGB applyGamma(const ColorLinRGB &linearRGB);
-
-ColorCIELab rgbToCIE(const ColorLinRGB &colorLinRGB);
+std::vector<StdRGB> getQuantizedColors();
 
 std::vector<std::vector<int>>
-buildLookupTable(const Picture &pic, const std::vector<ColorRGB> &quantColors);
+buildLookupTable(const Picture &pic, const std::vector<StdRGB> &quantColors);
 
-size_t findClosestColorIdx(const ColorRGB &targetColor,
-                           const std::vector<ColorRGB> &quantColors);
+size_t findClosestColorIdx(const StdRGB &targetColor,
+                           const std::vector<StdRGB> &quantColors);
 
 #endif

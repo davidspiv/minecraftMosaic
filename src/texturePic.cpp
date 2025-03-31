@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/util.h"
 
@@ -51,10 +52,10 @@ std::vector<Picture> getValidTextures(std::vector<std::string> fPaths) {
 }
 
 
-std::vector<ColorRGB>
+std::vector<StdRGB>
 getTextureAvgColors(const std::vector<Picture> &validTextures) {
   const size_t numValidTiles = validTextures.size();
-  std::vector<ColorRGB> avgColors(numValidTiles, ColorRGB());
+  std::vector<StdRGB> avgColors(numValidTiles, StdRGB());
 
   for (size_t i = 0; i < numValidTiles; i++) {
     Picture pic(validTextures[i]);
@@ -68,7 +69,7 @@ getTextureAvgColors(const std::vector<Picture> &validTextures) {
 void createTexturedPic(const Picture &srcPic,
                        const std::vector<Picture> &validTextures) {
 
-  const std::vector<ColorRGB> textureAvgColors =
+  const std::vector<StdRGB> textureAvgColors =
       getTextureAvgColors(validTextures);
   const std::vector<std::vector<int>> textureLookupTable =
       buildLookupTable(srcPic, textureAvgColors);
