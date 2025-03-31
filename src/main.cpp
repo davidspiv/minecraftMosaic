@@ -18,7 +18,7 @@ int main() {
   const std::vector<Picture> validTextures = getValidTextures(fPaths);
 
   createTexturedPic(srcPic, validTextures);
-  createQuantizedPic(srcPic);
-  createAvgPic(srcPic);
-  createAtlasPic(validTextures);
+  //   createQuantizedPic(srcPic);
+  //   createAvgPic(srcPic);
+  //   createAtlasPic(validTextures);
 }

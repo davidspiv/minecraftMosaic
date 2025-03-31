@@ -19,6 +19,7 @@ StdRGB::StdRGB(int r, int g, int b) : r(r), g(g), b(b) {
   validate(b);
 };
 
+
 StdRGB::StdRGB(const CieLab &cieLab) {
   CieXYZ cieXYZ = labToXYZ(cieLab);
   LinRGB linRgb = xyzToRGB(cieXYZ);
@@ -88,6 +89,7 @@ StdRGB applyGamma(const LinRGB &linRGB) {
                 applyGammaToChannel(linRGB.b));
 }
 
+
 CieXYZ rgbToXYZ(const LinRGB &linRGB) {
   // reference white - D65
   constexpr std::array<std::array<double, 3>, 3> rgbToXYZMatrix = {
@@ -120,6 +122,7 @@ LinRGB xyzToRGB(const CieXYZ &ceiLab) {
   return LinRGB(r, g, b);
 }
 
+
 CieLab xyzToLab(const CieXYZ &cieXYZ) {
 
   auto [x, y, z] = cieXYZ;
@@ -138,6 +141,7 @@ CieLab xyzToLab(const CieXYZ &cieXYZ) {
 
   return CieLab(lStar, aStar, bStar);
 };
+
 
 CieXYZ labToXYZ(const CieLab &cieLab) {
 
