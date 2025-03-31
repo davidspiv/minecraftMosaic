@@ -96,11 +96,10 @@ LinRGB linearize(const StdRGB &stdRGB) {
 
 
 StdRGB applyGamma(const LinRGB &linRGB) {
-
-  auto applyGammaToChannel = [](double c) -> int {
+  static auto applyGammaToChannel = [](double c) -> int {
     double corrected =
-        (c <= 0.0031308) ? (c * 12.92) : 1.055 * pow(c, 1.0 / 2.4) - 0.055;
-    return std::clamp(static_cast<int>(corrected * 255.0), 0, 255);
+        (c <= 0.0031308) ? (c * 12.92) : 1.055 * std::pow(c, 1.0 / 2.4) - 0.055;
+    return std::clamp(static_cast<int>(std::round(corrected * 255.0)), 0, 255);
   };
 
   return StdRGB(applyGammaToChannel(linRGB.r), applyGammaToChannel(linRGB.g),

@@ -23,6 +23,14 @@ double distSquared(const CieLab &colorA, const CieLab &colorB) {
   return xD * xD + yD * yD + zD * zD;
 }
 
+int distSquared(const StdRGB &colorA, const StdRGB &colorB) {
+
+  const int xD = colorB.r - colorA.r;
+  const int yD = colorB.g - colorA.g;
+  const int zD = colorB.b - colorA.b;
+  return xD * xD + yD * yD + zD * zD;
+}
+
 
 std::array<double, 3>
 multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
@@ -38,6 +46,37 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
 
   return result;
 }
+
+// NONE
+// StdRGB getAverageRGB(const Picture &pic, int originX, int originY) {
+//   // https://sighack.com/post/averaging-rgb-colors-the-right-way
+//   double r = 0;
+//   double g = 0;
+//   double b = 0;
+
+//   int numPx = 0;
+
+//   for (int j = originY; j < std::min(originY + 16, pic.height()); j++) {
+//     for (int i = originX; i < std::min(originX + 16, pic.width()); i++) {
+
+//       /* Sum the squares of components */
+//       r += pic.red(i, j);
+//       g += pic.green(i, j);
+//       b += pic.blue(i, j);
+
+//       ++numPx;
+//     }
+//   }
+
+//   if (numPx == 0)
+//     return StdRGB(0, 0, 0); // Prevent division by zero
+
+//   r /= numPx;
+//   g /= numPx;
+//   b /= numPx;
+
+//   return StdRGB(int(std::round(r)), int(std::round(g)), int(std::round(b)));
+// }
 
 // // LINEAR
 // StdRGB getAverageRGB(const Picture &pic, int originX, int originY) {
@@ -107,6 +146,27 @@ StdRGB getAverageRGB(const Picture &pic, int originX, int originY) {
   const CieLab cieLabFinal(lStar, aStar, bStar);
   return StdRGB(cieLabFinal);
 }
+
+
+// NONE
+// size_t findClosestColorIdx(const StdRGB &targetColor,
+//                            const std::vector<StdRGB> &quantColors) {
+//   size_t closestColorIdx = 0;
+//   int minDist = std::numeric_limits<int>::max();
+
+//   for (size_t i = 0; i < quantColors.size(); i++) {
+
+//     const LinRGB oColorLin(quantColors.at(i));
+//     int dist = distSquared(targetColor, quantColors.at(i));
+
+//     if (dist < minDist) {
+//       minDist = dist;
+//       closestColorIdx = i;
+//     }
+//   }
+
+//   return closestColorIdx;
+// }
 
 
 // LINEAR
