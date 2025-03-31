@@ -10,15 +10,15 @@
 
 int main() {
   Timer timer;
-  const Picture srcPic("./srcPics/warhammer.png");
+  Picture srcPic("./srcPics/lotus.png");
   //   gaussianBlur(srcPic, 20);
 
-  const std::string dir = "./blocks";
-  const std::vector<std::string> fPaths = getValidPaths(dir);
-  const std::vector<Picture> validTextures = getValidTextures(fPaths);
+  //   const std::string dir = "./blocks";
+  //   const std::vector<std::string> fPaths = getValidPaths(dir);
+  //   const std::vector<Picture> validTextures = getValidTextures(fPaths);
 
-  createTexturedPic(srcPic, validTextures);
+  //   createTexturedPic(srcPic, validTextures);
   createQuantizedPic(srcPic);
-  createAvgPic(srcPic);
+  //   createAvgPic(srcPic);
   //   createAtlasPic(validTextures);
 }

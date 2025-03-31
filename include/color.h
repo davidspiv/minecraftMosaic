@@ -5,17 +5,20 @@
 #include <stdexcept>
 
 struct CieLab;
+struct LinRGB;
 
 struct StdRGB {
   StdRGB() : r(255), g(255), b(255) {}
   StdRGB(int r, int g, int b);
   explicit StdRGB(const CieLab &ceiLab);
+  explicit StdRGB(const LinRGB &linRGB);
   int r, g, b;
 };
 
 struct LinRGB {
   LinRGB() : r(255.0), g(255.0), b(255.0) {}
   LinRGB(double r, double g, double b);
+  explicit LinRGB(const StdRGB &stdRgb);
   double r, g, b;
 };
 

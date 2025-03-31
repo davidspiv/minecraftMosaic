@@ -22,8 +22,17 @@ StdRGB::StdRGB(int r, int g, int b) : r(r), g(g), b(b) {
 
 StdRGB::StdRGB(const CieLab &cieLab) {
   CieXYZ cieXYZ = labToXYZ(cieLab);
-  LinRGB linRgb = xyzToRGB(cieXYZ);
-  auto [r, g, b] = applyGamma(linRgb);
+  LinRGB linRGB = xyzToRGB(cieXYZ);
+  auto [r, g, b] = applyGamma(linRGB);
+
+  this->r = r;
+  this->g = g;
+  this->b = b;
+};
+
+
+StdRGB::StdRGB(const LinRGB &linRGB) {
+  auto [r, g, b] = applyGamma(linRGB);
 
   this->r = r;
   this->g = g;
@@ -44,6 +53,15 @@ LinRGB::LinRGB(double r, double g, double b) : r(r), g(g), b(b) {
 };
 
 
+LinRGB::LinRGB(const StdRGB &stdRgb) {
+  auto [r, g, b] = linearize(stdRgb);
+
+  this->r = r;
+  this->g = g;
+  this->b = b;
+};
+
+
 CieXYZ::CieXYZ(double x, double y, double z) : x(x), y(y), z(z) {};
 
 
@@ -52,8 +70,8 @@ CieLab::CieLab(double lStar, double aStar, double bStar)
 
 
 CieLab::CieLab(const StdRGB &stdRgb) {
-  LinRGB linRgb = linearize(stdRgb);
-  CieXYZ cieXYZ = rgbToXYZ(linRgb);
+  LinRGB linRGB = linearize(stdRgb);
+  CieXYZ cieXYZ = rgbToXYZ(linRGB);
   auto [lStar, aStar, bStar] = xyzToLab(cieXYZ);
 
   this->lStar = lStar;
@@ -62,16 +80,16 @@ CieLab::CieLab(const StdRGB &stdRgb) {
 };
 
 
-LinRGB linearize(const StdRGB &sRGB) {
+LinRGB linearize(const StdRGB &stdRGB) {
   auto linearizeChannel = [](int c) -> double {
     double normalized = c / 255.0;
     return (normalized <= 0.04045) ? (normalized / 12.92)
                                    : pow((normalized + 0.055) / 1.055, 2.4);
   };
 
-  double r = linearizeChannel(sRGB.r);
-  double g = linearizeChannel(sRGB.g);
-  double b = linearizeChannel(sRGB.b);
+  double r = linearizeChannel(stdRGB.r);
+  double g = linearizeChannel(stdRGB.g);
+  double b = linearizeChannel(stdRGB.b);
 
   return {r, g, b};
 }
@@ -112,12 +130,12 @@ LinRGB xyzToRGB(const CieXYZ &ceiLab) {
       {0.0556434, -0.2040259, 1.0572252},
   }};
 
-  std::array<double, 3> linRgb =
+  std::array<double, 3> linRGB =
       multiplyMatrix(xyzToRGBMatrix, {ceiLab.x, ceiLab.y, ceiLab.z});
 
-  const double r = std::clamp(linRgb[0], 0.0, 1.0);
-  const double g = std::clamp(linRgb[1], 0.0, 1.0);
-  const double b = std::clamp(linRgb[2], 0.0, 1.0);
+  const double r = std::clamp(linRGB[0], 0.0, 1.0);
+  const double g = std::clamp(linRGB[1], 0.0, 1.0);
+  const double b = std::clamp(linRGB[2], 0.0, 1.0);
 
   return LinRGB(r, g, b);
 }
