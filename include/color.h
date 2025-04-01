@@ -2,6 +2,7 @@
 #define COLOR_H
 
 #include "../include/picture.h"
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 
@@ -41,17 +42,29 @@ class BitMap {
 public:
   BitMap(int width, int height)
       : _width(width), _height(height),
-        bits(height, std::vector<StdRGB>(width, StdRGB(255, 255, 255))) {}
+        bits(height, std::vector<CieLab>(width, CieLab())) {}
 
-  StdRGB get(int x, int y) const {
+  CieLab get(int x, int y) const {
     if (x < 0 || x >= _width || y < 0 || y >= _height) {
+      std::cout << "x: " << x << "y: " << y << std::endl;
       throw std::out_of_range("Out of range");
     }
     return bits[y][x];
   }
 
-  void set(int x, int y, StdRGB value) {
+  StdRGB getRBG(int x, int y) const {
     if (x < 0 || x >= _width || y < 0 || y >= _height) {
+      std::cout << "x: " << x << "y: " << y << std::endl;
+      throw std::out_of_range("Out of range");
+    }
+    const StdRGB stdRGB(bits[y][x]);
+
+    return stdRGB;
+  }
+
+  void set(int x, int y, const CieLab &value) {
+    if (x < 0 || x >= _width || y < 0 || y >= _height) {
+      std::cout << "x: " << x << "y: " << y << std::endl;
       throw std::out_of_range("Out of range");
     }
     bits[y][x] = value;
@@ -64,7 +77,7 @@ public:
 private:
   int _width;
   int _height;
-  std::vector<std::vector<StdRGB>> bits;
+  std::vector<std::vector<CieLab>> bits;
 };
 
 const CieXYZ referenceWhiteD60(0.950470, 1.0, 1.088830);

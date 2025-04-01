@@ -24,18 +24,19 @@ int main() {
       const int b = srcPic.blue(i, j);
 
       StdRGB stdRGB(r, g, b);
+      CieLab cieLab(stdRGB);
 
-      bitMap.set(i, j, stdRGB);
+      bitMap.set(i, j, cieLab);
     }
   }
   //   gaussianBlur(srcPic, 20);
 
-  //   const std::string dir = "./blocks";
-  //   const std::vector<std::string> fPaths = getValidPaths(dir);
-  //   const std::vector<BitMap> validTextures = getValidTextures(fPaths);
+  const std::string dir = "./blocks";
+  const std::vector<std::string> fPaths = getValidPaths(dir);
+  const std::vector<BitMap> validTextures = getValidTextures(fPaths);
 
-  //   createTexturedPic(bitMap, validTextures);
+  createTexturedPic(bitMap, validTextures);
   createQuantizedPic(bitMap);
-  //   createAvgPic(bitMap);
-  //   createAtlasPic(validTextures);
+  createAvgPic(bitMap);
+  createAtlasPic(validTextures);
 }

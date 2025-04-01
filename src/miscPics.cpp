@@ -6,13 +6,14 @@
 #include <vector>
 
 
-std::vector<StdRGB> getQuantizedColors() {
-  std::vector<StdRGB> colors;
+std::vector<CieLab> getQuantizedColors() {
+  std::vector<CieLab> colors;
 
   for (int i = 0; i <= 255; i += 15) {
     for (int j = 0; j <= 255; j += 15) {
       for (int k = 0; k <= 255; k += 15) {
-        colors.push_back({i, j, k});
+        const StdRGB stdRGB(i, j, k);
+        colors.push_back(CieLab(stdRGB));
       }
     }
   }
@@ -76,7 +77,7 @@ void createQuantizedPic(const BitMap &bitMap) {
       {57, 71, 120},   {57, 49, 75},    {86, 64, 100},   {142, 71, 140},
       {205, 96, 147},  {255, 174, 182}, {244, 180, 27},  {244, 126, 27}};
 
-  const std::vector<StdRGB> discreteColors = getQuantizedColors();
+  const std::vector<CieLab> discreteColors = getQuantizedColors();
   //   const std::vector<StdRGB> discreteColors = apolloPalette;
   const std::vector<std::vector<int>> lookupTable =
       buildLookupTable(bitMap, discreteColors);
@@ -88,7 +89,7 @@ void createQuantizedPic(const BitMap &bitMap) {
     for (int i = 0; i < quantPic.width(); i++) {
       const int texIdx = lookupTable.at(j / blockSize).at(i / blockSize);
 
-      auto [r, g, b] = discreteColors.at(texIdx);
+      auto [r, g, b] = StdRGB(discreteColors.at(texIdx));
 
       quantPic.set(i, j, r, g, b, 255);
     }
@@ -114,7 +115,7 @@ void createAtlasPic(const std::vector<BitMap> &validTextures) {
 
     for (size_t j = 0; j < blockSize; j++) {
       for (size_t k = 0; k < blockSize; k++) {
-        auto [r, g, b] = bitMap.get(k, j);
+        auto [r, g, b] = StdRGB(bitMap.get(k, j));
 
         atlas.set(xOffset + k, yOffset + j, r, g, b, 255);
       }

@@ -17,12 +17,12 @@ std::array<double, 3>
 multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
                const std::array<double, 3> &vector);
 
-StdRGB getAverageRGB(const BitMap &bitMap, int originX, int originY);
+CieLab getAverage(const BitMap &bitMap, int originX, int originY);
 
 std::vector<std::vector<int>>
-buildLookupTable(const BitMap &bitMap, const std::vector<StdRGB> &quantColors);
+buildLookupTable(const BitMap &bitMap, const std::vector<CieLab> &quantColors);
 
-size_t findClosestColorIdx(const StdRGB &targetColor,
-                           const std::vector<StdRGB> &quantColors);
+size_t findClosestColorIdx(const CieLab &targetColor,
+                           const std::vector<CieLab> &quantColors);
 
 #endif

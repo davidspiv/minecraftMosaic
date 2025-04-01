@@ -52,7 +52,7 @@ std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths) {
           const int b = texture.blue(k, j);
 
           StdRGB stdRGB(r, g, b);
-          bitMap.set(k, j, stdRGB);
+          bitMap.set(k, j, CieLab(stdRGB));
         }
       }
 
@@ -65,14 +65,14 @@ std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths) {
 }
 
 
-std::vector<StdRGB>
+std::vector<CieLab>
 getTextureAvgColors(const std::vector<BitMap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
-  std::vector<StdRGB> avgColors(numValidTiles, StdRGB());
+  std::vector<CieLab> avgColors(numValidTiles, CieLab());
 
   for (size_t i = 0; i < numValidTiles; i++) {
     BitMap bitMap(validTextures[i]);
-    avgColors.at(i) = getAverageRGB(bitMap, 0, 0);
+    avgColors.at(i) = getAverage(bitMap, 0, 0);
   }
 
   return avgColors;
@@ -82,7 +82,7 @@ getTextureAvgColors(const std::vector<BitMap> &validTextures) {
 void createTexturedPic(const BitMap &bitMap,
                        const std::vector<BitMap> &validTextures) {
 
-  const std::vector<StdRGB> textureAvgColors =
+  const std::vector<CieLab> textureAvgColors =
       getTextureAvgColors(validTextures);
   const std::vector<std::vector<int>> textureLookupTable =
       buildLookupTable(bitMap, textureAvgColors);
@@ -95,7 +95,7 @@ void createTexturedPic(const BitMap &bitMap,
 
       const int texIdx = textureLookupTable.at(j / blockSize).at(i / blockSize);
       auto [r, g, b] =
-          validTextures.at(texIdx).get(i % blockSize, j % blockSize);
+          StdRGB(validTextures.at(texIdx).get(i % blockSize, j % blockSize));
 
       texturedPic.set(i, j, r, g, b, 255);
     }
