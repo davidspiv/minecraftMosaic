@@ -24,12 +24,11 @@ Bitmap getAvgColorPerBlock(const Bitmap &bitmap) {
 void createAvgPic(const Bitmap &bitmap) {
 
   const Bitmap avgColors = getAvgColorPerBlock(bitmap);
-  Picture avgPic(bitmap.width(), bitmap.height(), 0, 0, 0);
+  Picture avgPic(bitmap.width() / 16, bitmap.height() / 16, 0, 0, 0);
 
   for (int j = 0; j < avgPic.height(); j++) {
     for (int i = 0; i < avgPic.width(); i++) {
-      auto [avgR, avgG, avgB] =
-          StdRGB(avgColors.get(i / blockSize, j / blockSize));
+      auto [avgR, avgG, avgB] = StdRGB(avgColors.get(i, j));
       avgPic.set(i, j, avgR, avgG, avgB, 255);
     }
   }

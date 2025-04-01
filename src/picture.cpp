@@ -4,7 +4,10 @@
 #include "../include/timer.h"
 
 #include <algorithm>
+#include <cmath>
+#include <cstring>
 #include <exception>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -44,22 +47,53 @@ Picture::Picture(const std::vector<std::vector<int>> &grays) {
   }
 }
 
+
+// Picture::Picture(const Bitmap &bitmap) {
+//   _width = bitmap.width();
+//   _height = bitmap.height();
+
+//   _values.resize(_width * _height * 4);
+
+//   unsigned char *ptr = _values.data();
+
+//   for (int j = 0; j < _height; j++) {
+//     for (int i = 0; i < _width; i++) {
+//       auto [r, g, b] = StdRGB(bitmap.get(i, j));
+
+//       *ptr++ = r;
+//       *ptr++ = g;
+//       *ptr++ = b;
+//       *ptr++ = 255;
+//     }
+//   }
+// }
+
+
 Picture::Picture(const Bitmap &bitmap) {
-  _width = bitmap.width();
-  _height = bitmap.height();
+  const int channels = 4;
+  const int factor = 4;
 
-  _values.resize(_width * _height * 4);
+  _width = bitmap.width() * factor;
+  _height = bitmap.height() * factor;
 
-  unsigned char *ptr = _values.data();
+  // Allocate enough space for the expanded image
+  _values.resize(_width * _height * channels);
 
-  for (int j = 0; j < _height; j++) {
-    for (int i = 0; i < _width; i++) {
+  for (int j = 0; j < bitmap.height(); j++) {
+    for (int i = 0; i < bitmap.width(); i++) {
       auto [r, g, b] = StdRGB(bitmap.get(i, j));
 
-      *ptr++ = r;
-      *ptr++ = g;
-      *ptr++ = b;
-      *ptr++ = 255;
+      // Write the scaled pixels
+      for (int y = 0; y < factor; y++) {
+        for (int x = 0; x < factor; x++) {
+          size_t dstIdx =
+              ((j * factor + y) * _width + (i * factor + x)) * channels;
+          _values[dstIdx] = r;
+          _values[dstIdx + 1] = g;
+          _values[dstIdx + 2] = b;
+          _values[dstIdx + 3] = 255; // Alpha channel
+        }
+      }
     }
   }
 }
@@ -81,6 +115,7 @@ Bitmap Picture::bitmap() const {
 
   return bitmap;
 }
+
 
 void Picture::save(const std::string &filename) const {
   unsigned error = lodepng::encode(filename.c_str(), _values, _width, _height);
@@ -141,6 +176,76 @@ Picture::Picture(const std::string &filename) {
   _width = w;
   _height = h;
 }
+
+int clampVal(double val) { return std::clamp(int(std::round(val)), 0, 255); };
+
+
+Picture Picture::bilinearResize(double factor) const {
+  if (factor == 1)
+    return *this;
+
+  // returns a StdRGB struct not associated with the ImageEditor class.
+  auto getStdRGB = [&](int x, int y) -> const StdRGB {
+    return {red(x, y), green(x, y), blue(x, y)};
+  };
+
+  const size_t inHeight = _height;
+  const size_t inWidth = _width;
+  const size_t outHeight = static_cast<int>(round(inHeight * factor));
+  const size_t outWidth = static_cast<int>(round(inWidth * factor));
+
+  const double xRatio = outWidth > 1 ? double(inWidth - 1) / (outWidth - 1) : 0;
+  const double yRatio =
+      outHeight > 1 ? double(inHeight - 1) / (outHeight - 1) : 0;
+
+  Picture newPic(outWidth, outHeight, 0, 0, 0);
+
+  for (size_t i = 0; i < outHeight; i++) {
+    for (size_t j = 0; j < outWidth; j++) {
+      const int yLow = std::floor(yRatio * i);
+      const int xLow = std::floor(xRatio * j);
+      const int xHigh = std::min(xLow + 1, int(inWidth - 1));
+      const int yHigh = std::min(yLow + 1, int(inHeight - 1));
+
+      const double yWeight = yRatio * i - yLow;
+      const double xWeight = xRatio * j - xLow;
+
+      // A,B,C, and D are known stdRGB values in original image
+      StdRGB A = getStdRGB(xLow, yLow);
+      StdRGB B = getStdRGB(xHigh, yLow);
+      StdRGB C = getStdRGB(xLow, yHigh);
+      StdRGB D = getStdRGB(xHigh, yHigh);
+
+      // computes a weighted average of the values associated with the four
+      // closest points
+      auto interpolate = [xWeight, yWeight](int a, int b, int c, int d) {
+        // We first compute the interpolated value of AB and CD in the width
+        // dimension
+        const double interpolatedAB = a * (1 - xWeight) + b * xWeight;
+        const double interpolatedCD = c * (1 - xWeight) + d * xWeight;
+
+        // Then we will do linear interpolation between the points generated
+        // from the two previous interpolations above
+        return static_cast<int>((interpolatedAB * (1.0 - yWeight)) +
+                                (interpolatedCD * yWeight));
+      };
+
+      auto calcStdRGB = [&](const StdRGB &A, const StdRGB &B, const StdRGB &C,
+                            const StdRGB &D) -> StdRGB {
+        return {interpolate(A.r, B.r, C.r, D.r),
+                interpolate(A.g, B.g, C.g, D.g),
+                interpolate(A.b, B.b, C.b, D.b)};
+      };
+
+      StdRGB stdRGB = calcStdRGB(A, B, C, D);
+
+      newPic.set(j, i, clampVal(stdRGB.r), clampVal(stdRGB.g),
+                 clampVal(stdRGB.b));
+    }
+  }
+
+  return newPic;
+};
 
 
 void Picture::ensure(int x, int y) {

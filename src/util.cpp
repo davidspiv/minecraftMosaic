@@ -94,21 +94,16 @@ size_t findClosestColorIdx(const CieLab &targetColor,
 
 std::vector<std::vector<int>>
 buildLookupTable(const Bitmap &bitmap, const std::vector<CieLab> &quantColors) {
-  const int cHorizontal = (bitmap.width() + blockSize - 1) / blockSize;
-  const int cVertical = (bitmap.height() + blockSize - 1) / blockSize;
+  std::vector<std::vector<int>> lookupTable(bitmap.height(),
+                                            std::vector<int>(bitmap.width()));
 
-  std::vector<std::vector<int>> lookupTable(cVertical,
-                                            std::vector<int>(cHorizontal));
+  for (int i = 0; i < bitmap.width(); i++) {
+    for (int j = 0; j < bitmap.height(); j++) {
 
-  for (int i = 0; i < bitmap.width(); i += blockSize) {
-    for (int j = 0; j < bitmap.height(); j += blockSize) {
 
-      const CieLab avgColor = getAverage(bitmap, i, j);
-      const int texIdx = findClosestColorIdx(avgColor, quantColors);
+      const int texIdx = findClosestColorIdx(bitmap.get(i, j), quantColors);
 
-      const int newI = i / blockSize;
-      const int newJ = j / blockSize;
-      lookupTable[newJ][newI] = texIdx;
+      lookupTable[i][j] = texIdx;
     }
   }
 
