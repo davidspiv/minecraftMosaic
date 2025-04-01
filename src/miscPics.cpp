@@ -21,7 +21,7 @@ std::vector<StdRGB> getQuantizedColors() {
 }
 
 
-void createQuantizedPic(const Picture &srcPic) {
+void createQuantizedPic(const BitMap &bitMap) {
 
   const std::vector<StdRGB> endesgaPalette = {
       {190, 74, 47},   {215, 118, 67},  {234, 212, 170}, {228, 166, 114},
@@ -79,7 +79,7 @@ void createQuantizedPic(const Picture &srcPic) {
   const std::vector<StdRGB> discreteColors = getQuantizedColors();
   //   const std::vector<StdRGB> discreteColors = apolloPalette;
   const std::vector<std::vector<int>> lookupTable =
-      buildLookupTable(srcPic, discreteColors);
+      buildLookupTable(bitMap, discreteColors);
 
   Picture quantPic(lookupTable.at(0).size() * blockSize,
                    lookupTable.size() * blockSize, 0, 0, 0);
@@ -98,7 +98,7 @@ void createQuantizedPic(const Picture &srcPic) {
 }
 
 
-void createAtlasPic(const std::vector<Picture> &validTextures) {
+void createAtlasPic(const std::vector<BitMap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
   const int gridSize =
       std::ceil(std::sqrt(numValidTiles)); // Ensure a square grid
@@ -107,16 +107,14 @@ void createAtlasPic(const std::vector<Picture> &validTextures) {
   Picture atlas(atlasSize, atlasSize, 0, 0, 0);
 
   for (size_t i = 0; i < numValidTiles; i++) {
-    Picture pic(validTextures[i]);
+    BitMap bitMap(validTextures[i]);
 
     int xOffset = (i % gridSize) * blockSize; // Column position
     int yOffset = (i / gridSize) * blockSize; // Row position
 
     for (size_t j = 0; j < blockSize; j++) {
       for (size_t k = 0; k < blockSize; k++) {
-        const int r = pic.red(k, j);
-        const int g = pic.green(k, j);
-        const int b = pic.blue(k, j);
+        auto [r, g, b] = bitMap.get(k, j);
 
         atlas.set(xOffset + k, yOffset + j, r, g, b, 255);
       }

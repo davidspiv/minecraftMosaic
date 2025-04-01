@@ -115,7 +115,7 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
 
 
 // LAB
-StdRGB getAverageRGB(const Picture &pic, int originX, int originY) {
+StdRGB getAverageRGB(const BitMap &bitMap, int originX, int originY) {
   // https://sighack.com/post/averaging-rgb-colors-the-right-way
   double lStar = 0;
   double aStar = 0;
@@ -123,9 +123,9 @@ StdRGB getAverageRGB(const Picture &pic, int originX, int originY) {
 
   int numPx = 0;
 
-  for (int j = originY; j < std::min(originY + 16, pic.height()); j++) {
-    for (int i = originX; i < std::min(originX + 16, pic.width()); i++) {
-      const StdRGB stdRGB(pic.red(i, j), pic.green(i, j), pic.blue(i, j));
+  for (int j = originY; j < std::min(originY + 16, bitMap.height()); j++) {
+    for (int i = originX; i < std::min(originX + 16, bitMap.width()); i++) {
+      const StdRGB stdRGB(bitMap.get(i, j));
       const CieLab cieLabComponent(stdRGB);
 
       /* Sum the squares of components */
@@ -204,10 +204,10 @@ size_t findClosestColorIdx(const StdRGB &targetColor,
   for (size_t i = 0; i < quantColors.size(); i++) {
 
     const CieLab oColorCEI(quantColors.at(i));
-    double dist = distSquared(tColorCEI, oColorCEI);
+    const double curDist = distSquared(tColorCEI, oColorCEI);
 
-    if (dist < minDist) {
-      minDist = dist;
+    if (curDist < minDist) {
+      minDist = curDist;
       closestColorIdx = i;
     }
   }
@@ -217,17 +217,17 @@ size_t findClosestColorIdx(const StdRGB &targetColor,
 
 
 std::vector<std::vector<int>>
-buildLookupTable(const Picture &pic, const std::vector<StdRGB> &quantColors) {
-  const int cHorizontal = (pic.width() + blockSize - 1) / blockSize;
-  const int cVertical = (pic.height() + blockSize - 1) / blockSize;
+buildLookupTable(const BitMap &bitMap, const std::vector<StdRGB> &quantColors) {
+  const int cHorizontal = (bitMap.width() + blockSize - 1) / blockSize;
+  const int cVertical = (bitMap.height() + blockSize - 1) / blockSize;
 
   std::vector<std::vector<int>> lookupTable(cVertical,
                                             std::vector<int>(cHorizontal));
 
-  for (int j = 0; j < pic.height(); j += blockSize) {
-    for (int i = 0; i < pic.width(); i += blockSize) {
+  for (int j = 0; j < bitMap.height(); j += blockSize) {
+    for (int i = 0; i < bitMap.width(); i += blockSize) {
 
-      const StdRGB avgColor = getAverageRGB(pic, i, j);
+      const StdRGB avgColor = getAverageRGB(bitMap, i, j);
       const int texIdx = findClosestColorIdx(avgColor, quantColors);
 
       const int newJ = j / blockSize;

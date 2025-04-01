@@ -3,18 +3,17 @@
 
 #include <vector>
 
-std::vector<std::vector<StdRGB>> getAvgColorPerBlock(const Picture &pic) {
-  const int cHorizontal = pic.width() / blockSize;
-  const int cVertical = pic.height() / blockSize;
+BitMap getAvgColorPerBlock(const BitMap &bitMap) {
+  const int cHorizontal = bitMap.width() / blockSize;
+  const int cVertical = bitMap.height() / blockSize;
 
-  std::vector<std::vector<StdRGB>> avgColors(cVertical,
-                                             std::vector<StdRGB>(cHorizontal));
+  BitMap avgColors(cHorizontal, cVertical);
 
-  for (int j = 0; j < pic.height(); j += blockSize) {
-    for (int i = 0; i < pic.width(); i += blockSize) {
+  for (int j = 0; j < bitMap.height(); j += blockSize) {
+    for (int i = 0; i < bitMap.width(); i += blockSize) {
 
-      const StdRGB avgColor = getAverageRGB(pic, i, j);
-      avgColors.at(j / blockSize).at(i / blockSize) = avgColor;
+      const StdRGB avgColor = getAverageRGB(bitMap, i, j);
+      avgColors.get(i / blockSize, j / blockSize) = avgColor;
     }
   }
 
@@ -22,14 +21,14 @@ std::vector<std::vector<StdRGB>> getAvgColorPerBlock(const Picture &pic) {
 }
 
 
-void createAvgPic(const Picture &pic) {
+void createAvgPic(const BitMap &bitMap) {
 
-  const std::vector<std::vector<StdRGB>> avgColors = getAvgColorPerBlock(pic);
-  Picture avgPic(pic.width(), pic.height(), 0, 0, 0);
+  const BitMap avgColors = getAvgColorPerBlock(bitMap);
+  Picture avgPic(bitMap.width(), bitMap.height(), 0, 0, 0);
 
   for (int j = 0; j < avgPic.height(); j++) {
     for (int i = 0; i < avgPic.width(); i++) {
-      auto [avgR, avgG, avgB] = avgColors.at(j / blockSize).at(i / blockSize);
+      auto [avgR, avgG, avgB] = avgColors.get(i / blockSize, j / blockSize);
       avgPic.set(i, j, avgR, avgG, avgB, 255);
     }
   }

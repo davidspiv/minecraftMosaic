@@ -1,4 +1,5 @@
 #include "../include/avgPic.h"
+#include "../include/color.h"
 #include "../include/gaussianBlur.h"
 #include "../include/miscPics.h"
 #include "../include/picture.h"
@@ -11,14 +12,32 @@
 int main() {
   Timer timer;
   Picture srcPic("./srcPics/tahoe.png");
+  const size_t width = srcPic.width();
+  const size_t height = srcPic.width();
+
+  BitMap bitMap(width, height);
+
+  for (size_t j = 0; j < height; j++) {
+    for (size_t i = 0; i < width; i++) {
+      const int r = srcPic.red(i, j);
+      const int g = srcPic.green(i, j);
+      const int b = srcPic.blue(i, j);
+
+      StdRGB stdRGB(r, g, b);
+
+      bitMap.set(i, j, stdRGB);
+    }
+  }
+
+
   //   gaussianBlur(srcPic, 20);
 
-  //   const std::string dir = "./blocks";
-  //   const std::vector<std::string> fPaths = getValidPaths(dir);
-  //   const std::vector<Picture> validTextures = getValidTextures(fPaths);
+  const std::string dir = "./blocks";
+  const std::vector<std::string> fPaths = getValidPaths(dir);
+  const std::vector<BitMap> validTextures = getValidTextures(fPaths);
 
-  //   createTexturedPic(srcPic, validTextures);
-  createQuantizedPic(srcPic);
-  //   createAvgPic(srcPic);
-  //   createAtlasPic(validTextures);
+  createTexturedPic(bitMap, validTextures);
+  createQuantizedPic(bitMap);
+  createAvgPic(bitMap);
+  createAtlasPic(validTextures);
 }

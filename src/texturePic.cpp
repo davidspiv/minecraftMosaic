@@ -22,9 +22,9 @@ std::vector<std::string> getValidPaths(std::string dir) {
 }
 
 
-std::vector<Picture> getValidTextures(std::vector<std::string> fPaths) {
+std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths) {
   const size_t numTiles = fPaths.size();
-  std::vector<Picture> validTextures;
+  std::vector<BitMap> validTextures;
 
   for (size_t i = 0; i < numTiles; i++) {
 
@@ -44,7 +44,20 @@ std::vector<Picture> getValidTextures(std::vector<std::string> fPaths) {
     }
 
     if (!isTransparent) {
-      validTextures.push_back(std::move(texture));
+      BitMap bitMap(16, 16);
+      for (size_t j = 0; j < 16; j++) {
+        for (size_t k = 0; k < 16; k++) {
+          const int r = texture.red(k, j);
+          const int g = texture.green(k, j);
+          const int b = texture.blue(k, j);
+
+          StdRGB stdRGB(r, g, b);
+          bitMap.set(k, j, stdRGB);
+        }
+      }
+
+
+      validTextures.push_back(bitMap);
     }
   }
 
@@ -53,38 +66,36 @@ std::vector<Picture> getValidTextures(std::vector<std::string> fPaths) {
 
 
 std::vector<StdRGB>
-getTextureAvgColors(const std::vector<Picture> &validTextures) {
+getTextureAvgColors(const std::vector<BitMap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
   std::vector<StdRGB> avgColors(numValidTiles, StdRGB());
 
   for (size_t i = 0; i < numValidTiles; i++) {
-    Picture pic(validTextures[i]);
-    avgColors.at(i) = getAverageRGB(pic, 0, 0);
+    BitMap bitMap(validTextures[i]);
+    avgColors.at(i) = getAverageRGB(bitMap, 0, 0);
   }
 
   return avgColors;
 }
 
 
-void createTexturedPic(const Picture &srcPic,
-                       const std::vector<Picture> &validTextures) {
+void createTexturedPic(const BitMap &bitMap,
+                       const std::vector<BitMap> &validTextures) {
 
   const std::vector<StdRGB> textureAvgColors =
       getTextureAvgColors(validTextures);
   const std::vector<std::vector<int>> textureLookupTable =
-      buildLookupTable(srcPic, textureAvgColors);
+      buildLookupTable(bitMap, textureAvgColors);
 
   Picture texturedPic(textureLookupTable.at(0).size() * blockSize,
                       textureLookupTable.size() * blockSize, 0, 0, 0);
 
   for (int j = 0; j < texturedPic.height(); j++) {
     for (int i = 0; i < texturedPic.width(); i++) {
-      const int texIdx = textureLookupTable.at(j / blockSize).at(i / blockSize);
 
-      //   auto [r, g, b] = textureAvgColors.at(texIdx);
-      int r = validTextures.at(texIdx).red(i % blockSize, j % blockSize);
-      int g = validTextures.at(texIdx).green(i % blockSize, j % blockSize);
-      int b = validTextures.at(texIdx).blue(i % blockSize, j % blockSize);
+      const int texIdx = textureLookupTable.at(j / blockSize).at(i / blockSize);
+      auto [r, g, b] =
+          validTextures.at(texIdx).get(i % blockSize, j % blockSize);
 
       texturedPic.set(i, j, r, g, b, 255);
     }
