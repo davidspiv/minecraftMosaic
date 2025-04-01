@@ -5,38 +5,27 @@
 #include "../include/picture.h"
 #include "../include/texturePic.h"
 #include "../include/timer.h"
+#include "../include/util.h"
 
 #include <string>
 #include <vector>
 
 int main() {
+
   Timer timer;
-  Picture srcPic("./srcPics/tahoe.png");
-  const size_t width = srcPic.width();
-  const size_t height = srcPic.height();
+  Picture srcPic("./srcPics/lotus.png");
+  Bitmap bitmap = srcPic.bitmap();
 
-  Bitmap bitmap(width, height);
-
-  for (size_t j = 0; j < height; j++) {
-    for (size_t i = 0; i < width; i++) {
-      const int r = srcPic.red(i, j);
-      const int g = srcPic.green(i, j);
-      const int b = srcPic.blue(i, j);
-
-      StdRGB stdRGB(r, g, b);
-      CieLab cieLab(stdRGB);
-
-      bitmap.set(i, j, cieLab);
-    }
-  }
   //   gaussianBlur(srcPic, 20);
 
-  const std::string dir = "./blocks";
-  const std::vector<std::string> fPaths = getValidPaths(dir);
-  const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
+  //   const std::string dir = "./blocks";
+  //   const std::vector<std::string> fPaths = getValidPaths(dir);
+  //   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
-  createTexturedPic(bitmap, validTextures);
-  createQuantizedPic(bitmap);
-  createAvgPic(bitmap);
-  createAtlasPic(validTextures);
+  //   createTexturedPic(bitmap, validTextures);
+  Bitmap quantBitmap = createQuantizedPic(bitmap);
+  Picture quantPic(quantBitmap);
+  quantPic.save("./outputPics/quantizedPic.png");
+  //   createAvgPic(bitmap);
+  //   createAtlasPic(validTextures);
 }

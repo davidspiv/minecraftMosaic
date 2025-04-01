@@ -1,7 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "../include/picture.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>

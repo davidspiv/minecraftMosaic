@@ -1,5 +1,7 @@
 
 #include "../include/picture.h"
+#include "../include/color.h"
+#include "../include/timer.h"
 
 #include <algorithm>
 #include <exception>
@@ -42,6 +44,43 @@ Picture::Picture(const std::vector<std::vector<int>> &grays) {
   }
 }
 
+Picture::Picture(const Bitmap &bitmap) {
+  _width = bitmap.width();
+  _height = bitmap.height();
+
+  _values.resize(_width * _height * 4);
+
+  unsigned char *ptr = _values.data();
+
+  for (int j = 0; j < _height; j++) {
+    for (int i = 0; i < _width; i++) {
+      auto [r, g, b] = StdRGB(bitmap.get(i, j));
+
+      *ptr++ = r;
+      *ptr++ = g;
+      *ptr++ = b;
+      *ptr++ = 255;
+    }
+  }
+}
+
+Bitmap Picture::bitmap() const {
+  Bitmap bitmap(_width, _height);
+
+  for (int y = 0; y < _height; ++y) {
+    for (int x = 0; x < _width; ++x) {
+      int i = (y * _width + x) * 4;
+
+      const int r = _values[i];
+      const int g = _values[i + 1];
+      const int b = _values[i + 2];
+
+      bitmap.set(x, y, CieLab(StdRGB(r, g, b)));
+    }
+  }
+
+  return bitmap;
+}
 
 void Picture::save(const std::string &filename) const {
   unsigned error = lodepng::encode(filename.c_str(), _values, _width, _height);

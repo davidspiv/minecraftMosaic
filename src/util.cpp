@@ -1,5 +1,7 @@
 #include "../include/util.h"
 #include "../include/color.h"
+#include "../include/picture.h"
+#include "../include/timer.h"
 
 #include <algorithm>
 #include <array>
@@ -50,34 +52,25 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
 
 
 CieLab getAverage(const Bitmap &bitmap, int originX, int originY) {
-  double lStar = 0;
-  double aStar = 0;
-  double bStar = 0;
+  double lStar = 0.0;
+  double aStar = 0.0;
+  double bStar = 0.0;
+  const int maxX = std::min(originX + blockSize, bitmap.width());
+  const int maxY = std::min(originY + blockSize, bitmap.height());
+  const int numPx = (maxX - originX) * (maxY - originY);
 
-  int numPx = 0;
+  for (int x = originX; x < maxX; ++x) {
+    for (int y = originY; y < maxY; ++y) {
+      const CieLab &cieLabComponent = bitmap.get(x, y);
 
-  for (int j = originY; j < std::min(originY + 16, bitmap.height()); j++) {
-    for (int i = originX; i < std::min(originX + 16, bitmap.width()); i++) {
-
-      const CieLab cieLabComponent = bitmap.get(i, j);
-
-      /* Sum the squares of components */
       lStar += cieLabComponent.lStar;
       aStar += cieLabComponent.aStar;
       bStar += cieLabComponent.bStar;
-
-      ++numPx;
     }
   }
 
-  if (numPx == 0)
-    return CieLab(0, 0, 0); // Prevent division by zero
-
-  lStar /= numPx;
-  aStar /= numPx;
-  bStar /= numPx;
-
-  return CieLab(lStar, aStar, bStar);
+  double invNumPx = 1.0 / numPx;
+  return CieLab(lStar * invNumPx, aStar * invNumPx, bStar * invNumPx);
 }
 
 
@@ -86,10 +79,8 @@ size_t findClosestColorIdx(const CieLab &targetColor,
   size_t closestColorIdx = 0;
   double minDist = std::numeric_limits<double>::max();
 
-  for (size_t i = 0; i < quantColors.size(); i++) {
-
-    const CieLab oColorCEI(quantColors.at(i));
-    const double curDist = distSquared(targetColor, oColorCEI);
+  for (size_t i = 0; i < quantColors.size(); ++i) {
+    const double curDist = distSquared(targetColor, quantColors[i]);
 
     if (curDist < minDist) {
       minDist = curDist;
@@ -109,17 +100,32 @@ buildLookupTable(const Bitmap &bitmap, const std::vector<CieLab> &quantColors) {
   std::vector<std::vector<int>> lookupTable(cVertical,
                                             std::vector<int>(cHorizontal));
 
-  for (int j = 0; j < bitmap.height(); j += blockSize) {
-    for (int i = 0; i < bitmap.width(); i += blockSize) {
+  for (int i = 0; i < bitmap.width(); i += blockSize) {
+    for (int j = 0; j < bitmap.height(); j += blockSize) {
 
       const CieLab avgColor = getAverage(bitmap, i, j);
       const int texIdx = findClosestColorIdx(avgColor, quantColors);
 
-      const int newJ = j / blockSize;
       const int newI = i / blockSize;
-      lookupTable.at(newJ).at(newI) = texIdx;
+      const int newJ = j / blockSize;
+      lookupTable[newJ][newI] = texIdx;
     }
   }
 
   return lookupTable;
+}
+
+
+void saveAsPNG(const Bitmap &bitmap) {
+  Picture quantPic(bitmap.width(), bitmap.height(), 0, 0, 0);
+
+  for (int i = 0; i < bitmap.width(); i++) {
+    for (int j = 0; j < bitmap.height(); j++) {
+      auto [r, g, b] = StdRGB(bitmap.get(i, j));
+
+      quantPic.set(i, j, r, g, b);
+    }
+  }
+
+  quantPic.save("./outputPics/quantizedPic.png");
 }

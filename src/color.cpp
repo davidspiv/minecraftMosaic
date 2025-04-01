@@ -81,31 +81,44 @@ CieLab::CieLab(const StdRGB &stdRgb) {
 
 
 LinRGB linearize(const StdRGB &stdRGB) {
-  auto linearizeChannel = [](int c) -> double {
-    double normalized = c / 255.0;
-    return (normalized <= 0.04045) ? (normalized / 12.92)
-                                   : pow((normalized + 0.055) / 1.055, 2.4);
-  };
+  static std::array<double, 256> linearizeLUT = [] {
+    std::array<double, 256> lut{};
+    for (int i = 0; i < 256; ++i) {
+      double normalized = i / 255.0;
+      lut[i] = (normalized <= 0.04045)
+                   ? (normalized / 12.92)
+                   : std::pow((normalized + 0.055) / 1.055, 2.4);
+    }
+    return lut;
+  }();
 
-  double r = linearizeChannel(stdRGB.r);
-  double g = linearizeChannel(stdRGB.g);
-  double b = linearizeChannel(stdRGB.b);
 
-  return {r, g, b};
+  return {linearizeLUT[stdRGB.r], linearizeLUT[stdRGB.g],
+          linearizeLUT[stdRGB.b]};
 }
 
-
+// Optimized gamma correction using LUT
 StdRGB applyGamma(const LinRGB &linRGB) {
-  static auto applyGammaToChannel = [](double c) -> int {
-    double corrected =
-        (c <= 0.0031308) ? (c * 12.92) : 1.055 * std::pow(c, 1.0 / 2.4) - 0.055;
-    return std::clamp(static_cast<int>(std::round(corrected * 255.0)), 0, 255);
-  };
+  static std::array<uint8_t, 256> gammaLUT = [] {
+    std::array<uint8_t, 256> lut{};
+    for (int i = 0; i < 256; ++i) {
+      double linear = i / 255.0;
+      double corrected = (linear <= 0.0031308)
+                             ? (linear * 12.92)
+                             : 1.055 * std::pow(linear, 1.0 / 2.4) - 0.055;
+      lut[i] = static_cast<uint8_t>(std::round(corrected * 255.0));
+    }
+    return lut;
+  }();
 
-  return StdRGB(applyGammaToChannel(linRGB.r), applyGammaToChannel(linRGB.g),
-                applyGammaToChannel(linRGB.b));
+
+  return {gammaLUT[std::clamp(static_cast<int>(std::round(linRGB.r * 255.0)), 0,
+                              255)],
+          gammaLUT[std::clamp(static_cast<int>(std::round(linRGB.g * 255.0)), 0,
+                              255)],
+          gammaLUT[std::clamp(static_cast<int>(std::round(linRGB.b * 255.0)), 0,
+                              255)]};
 }
-
 
 CieXYZ rgbToXYZ(const LinRGB &linRGB) {
   // reference white - D65
