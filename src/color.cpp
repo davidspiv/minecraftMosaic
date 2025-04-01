@@ -81,7 +81,8 @@ CieLab::CieLab(const StdRGB &stdRgb) {
 
 
 LinRGB linearize(const StdRGB &stdRGB) {
-  static std::array<double, 256> linearizeLUT = [] {
+  // linear lookup table
+  static std::array<double, 256> linearLUT = [] {
     std::array<double, 256> lut{};
     for (int i = 0; i < 256; ++i) {
       double normalized = i / 255.0;
@@ -93,12 +94,12 @@ LinRGB linearize(const StdRGB &stdRGB) {
   }();
 
 
-  return {linearizeLUT[stdRGB.r], linearizeLUT[stdRGB.g],
-          linearizeLUT[stdRGB.b]};
+  return {linearLUT[stdRGB.r], linearLUT[stdRGB.g], linearLUT[stdRGB.b]};
 }
 
-// Optimized gamma correction using LUT
+
 StdRGB applyGamma(const LinRGB &linRGB) {
+  // gamma lookup table
   static std::array<uint8_t, 256> gammaLUT = [] {
     std::array<uint8_t, 256> lut{};
     for (int i = 0; i < 256; ++i) {
@@ -119,6 +120,7 @@ StdRGB applyGamma(const LinRGB &linRGB) {
           gammaLUT[std::clamp(static_cast<int>(std::round(linRGB.b * 255.0)), 0,
                               255)]};
 }
+
 
 CieXYZ rgbToXYZ(const LinRGB &linRGB) {
   // reference white - D65
@@ -154,41 +156,40 @@ LinRGB xyzToRGB(const CieXYZ &ceiLab) {
 
 
 CieLab xyzToLab(const CieXYZ &cieXYZ) {
-
   auto [x, y, z] = cieXYZ;
 
   const double xR = x / referenceWhiteD60.x;
   const double yR = y / referenceWhiteD60.y;
   const double zR = z / referenceWhiteD60.z;
 
-  const double fX = (xR > epsilon) ? std::cbrt(xR) : (kappa * xR + 16) / 116.0;
-  const double fY = (yR > epsilon) ? std::cbrt(yR) : (kappa * yR + 16) / 116.0;
-  const double fZ = (zR > epsilon) ? std::cbrt(zR) : (kappa * zR + 16) / 116.0;
+  auto f = [](double t) -> double {
+    return (t > epsilon) ? std::cbrt(t) : (kappa * t + 16) / 116.0;
+  };
 
-  const double lStar = 116 * fY - 16;
-  const double aStar = 500 * (fX - fY);
-  const double bStar = 200 * (fY - fZ);
+  const double fX = f(xR);
+  const double fY = f(yR);
+  const double fZ = f(zR);
 
-  return CieLab(lStar, aStar, bStar);
-};
+  return {(116.0 * fY) - 16.0, 500.0 * (fX - fY), 200.0 * (fY - fZ)};
+}
 
 
 CieXYZ labToXYZ(const CieLab &cieLab) {
-
   const double fY = (cieLab.lStar + 16) / 116.0;
   const double fX = fY + (cieLab.aStar / 500.0);
   const double fZ = fY - (cieLab.bStar / 200.0);
 
-  const double xR =
-      (std::pow(fX, 3) > epsilon) ? std::pow(fX, 3) : (116 * fX - 16) / kappa;
-  const double yR = (cieLab.lStar > (kappa * epsilon)) ? std::pow(fY, 3)
-                                                       : cieLab.lStar / kappa;
-  const double zR =
-      (std::pow(fZ, 3) > epsilon) ? std::pow(fZ, 3) : (116 * fZ - 16) / kappa;
+  // Compute inverse f() using a lambda
+  auto fInv = [](double f) -> double {
+    double f3 = f * f * f;
+    return (f3 > epsilon) ? f3 : (116 * f - 16) / kappa;
+  };
 
-  const double x = xR * referenceWhiteD60.x;
-  const double y = yR * referenceWhiteD60.y;
-  const double z = zR * referenceWhiteD60.z;
+  const double xR = fInv(fX);
+  const double yR =
+      (cieLab.lStar > kappa * epsilon) ? std::pow(fY, 3) : cieLab.lStar / kappa;
+  const double zR = fInv(fZ);
 
-  return CieXYZ(x, y, z);
+  return {xR * referenceWhiteD60.x, yR * referenceWhiteD60.y,
+          zR * referenceWhiteD60.z};
 }
