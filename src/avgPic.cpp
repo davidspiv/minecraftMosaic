@@ -3,17 +3,17 @@
 
 #include <vector>
 
-BitMap getAvgColorPerBlock(const BitMap &bitMap) {
-  const int cHorizontal = (bitMap.width() / blockSize) + 1;
-  const int cVertical = (bitMap.height() / blockSize) + 1;
+Bitmap getAvgColorPerBlock(const Bitmap &bitmap) {
+  const int cHorizontal = (bitmap.width() / blockSize) + 1;
+  const int cVertical = (bitmap.height() / blockSize) + 1;
 
-  BitMap avgColors(cHorizontal, cVertical);
+  Bitmap avgColors(cHorizontal, cVertical);
 
-  for (int j = 0; j < bitMap.height(); j += blockSize) {
-    for (int i = 0; i < bitMap.width(); i += blockSize) {
+  for (int j = 0; j < bitmap.height(); j += blockSize) {
+    for (int i = 0; i < bitmap.width(); i += blockSize) {
 
-      const CieLab avgColor = getAverage(bitMap, i, j);
-      avgColors.get(i / blockSize, j / blockSize) = avgColor;
+      const CieLab avgColor = getAverage(bitmap, i, j);
+      avgColors.set(i / blockSize, j / blockSize, avgColor);
     }
   }
 
@@ -21,10 +21,10 @@ BitMap getAvgColorPerBlock(const BitMap &bitMap) {
 }
 
 
-void createAvgPic(const BitMap &bitMap) {
+void createAvgPic(const Bitmap &bitmap) {
 
-  const BitMap avgColors = getAvgColorPerBlock(bitMap);
-  Picture avgPic(bitMap.width(), bitMap.height(), 0, 0, 0);
+  const Bitmap avgColors = getAvgColorPerBlock(bitmap);
+  Picture avgPic(bitmap.width(), bitmap.height(), 0, 0, 0);
 
   for (int j = 0; j < avgPic.height(); j++) {
     for (int i = 0; i < avgPic.width(); i++) {

@@ -9,9 +9,9 @@
 
 std::vector<std::string> getValidPaths(std::string dir);
 
-std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths);
+std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths);
 
-void createTexturedPic(const BitMap &bitMap,
-                       const std::vector<BitMap> &validTextures);
+void createTexturedPic(const Bitmap &bitmap,
+                       const std::vector<Bitmap> &validTextures);
 
 #endif

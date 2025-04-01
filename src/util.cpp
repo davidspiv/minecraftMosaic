@@ -48,85 +48,18 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
   return result;
 }
 
-// NONE
-// StdRGB getAverage(const Picture &pic, int originX, int originY) {
-//   // https://sighack.com/post/averaging-rgb-colors-the-right-way
-//   double r = 0;
-//   double g = 0;
-//   double b = 0;
 
-//   int numPx = 0;
-
-//   for (int j = originY; j < std::min(originY + 16, pic.height()); j++) {
-//     for (int i = originX; i < std::min(originX + 16, pic.width()); i++) {
-
-//       /* Sum the squares of components */
-//       r += pic.red(i, j);
-//       g += pic.green(i, j);
-//       b += pic.blue(i, j);
-
-//       ++numPx;
-//     }
-//   }
-
-//   if (numPx == 0)
-//     return StdRGB(0, 0, 0); // Prevent division by zero
-
-//   r /= numPx;
-//   g /= numPx;
-//   b /= numPx;
-
-//   return StdRGB(int(std::round(r)), int(std::round(g)), int(std::round(b)));
-// }
-
-// // LINEAR
-// StdRGB getAverage(const Picture &pic, int originX, int originY) {
-//   // https://sighack.com/post/averaging-rgb-colors-the-right-way
-//   double r = 0;
-//   double g = 0;
-//   double b = 0;
-
-//   int numPx = 0;
-
-//   for (int j = originY; j < std::min(originY + 16, pic.height()); j++) {
-//     for (int i = originX; i < std::min(originX + 16, pic.width()); i++) {
-//       const StdRGB stdRGB(pic.red(i, j), pic.green(i, j), pic.blue(i, j));
-//       const LinRGB linRGBComponent(stdRGB);
-
-//       /* Sum the squares of components */
-//       r += linRGBComponent.r;
-//       g += linRGBComponent.g;
-//       b += linRGBComponent.b;
-
-//       ++numPx;
-//     }
-//   }
-
-//   if (numPx == 0)
-//     return StdRGB(0, 0, 0); // Prevent division by zero
-
-//   r /= numPx;
-//   g /= numPx;
-//   b /= numPx;
-
-//   const LinRGB linRGBFinal(r, g, b);
-//   return StdRGB(linRGBFinal);
-// }
-
-
-// LAB
-CieLab getAverage(const BitMap &bitMap, int originX, int originY) {
-  // https://sighack.com/post/averaging-rgb-colors-the-right-way
+CieLab getAverage(const Bitmap &bitmap, int originX, int originY) {
   double lStar = 0;
   double aStar = 0;
   double bStar = 0;
 
   int numPx = 0;
 
-  for (int j = originY; j < std::min(originY + 16, bitMap.height()); j++) {
-    for (int i = originX; i < std::min(originX + 16, bitMap.width()); i++) {
+  for (int j = originY; j < std::min(originY + 16, bitmap.height()); j++) {
+    for (int i = originX; i < std::min(originX + 16, bitmap.width()); i++) {
 
-      const CieLab cieLabComponent = bitMap.get(i, j);
+      const CieLab cieLabComponent = bitmap.get(i, j);
 
       /* Sum the squares of components */
       lStar += cieLabComponent.lStar;
@@ -148,51 +81,6 @@ CieLab getAverage(const BitMap &bitMap, int originX, int originY) {
 }
 
 
-// NONE
-// size_t findClosestColorIdx(const StdRGB &targetColor,
-//                            const std::vector<StdRGB> &quantColors) {
-//   size_t closestColorIdx = 0;
-//   int minDist = std::numeric_limits<int>::max();
-
-//   for (size_t i = 0; i < quantColors.size(); i++) {
-
-//     const LinRGB oColorLin(quantColors.at(i));
-//     int dist = distSquared(targetColor, quantColors.at(i));
-
-//     if (dist < minDist) {
-//       minDist = dist;
-//       closestColorIdx = i;
-//     }
-//   }
-
-//   return closestColorIdx;
-// }
-
-
-// LINEAR
-// size_t findClosestColorIdx(const StdRGB &targetColor,
-//                            const std::vector<StdRGB> &quantColors) {
-//   size_t closestColorIdx = 0;
-//   double minDist = std::numeric_limits<double>::max();
-
-//   const LinRGB tColorLin(targetColor);
-
-//   for (size_t i = 0; i < quantColors.size(); i++) {
-
-//     const LinRGB oColorLin(quantColors.at(i));
-//     double dist = distSquared(tColorLin, oColorLin);
-
-//     if (dist < minDist) {
-//       minDist = dist;
-//       closestColorIdx = i;
-//     }
-//   }
-
-//   return closestColorIdx;
-// }
-
-
-// LAB
 size_t findClosestColorIdx(const CieLab &targetColor,
                            const std::vector<CieLab> &quantColors) {
   size_t closestColorIdx = 0;
@@ -214,17 +102,17 @@ size_t findClosestColorIdx(const CieLab &targetColor,
 
 
 std::vector<std::vector<int>>
-buildLookupTable(const BitMap &bitMap, const std::vector<CieLab> &quantColors) {
-  const int cHorizontal = (bitMap.width() + blockSize - 1) / blockSize;
-  const int cVertical = (bitMap.height() + blockSize - 1) / blockSize;
+buildLookupTable(const Bitmap &bitmap, const std::vector<CieLab> &quantColors) {
+  const int cHorizontal = (bitmap.width() + blockSize - 1) / blockSize;
+  const int cVertical = (bitmap.height() + blockSize - 1) / blockSize;
 
   std::vector<std::vector<int>> lookupTable(cVertical,
                                             std::vector<int>(cHorizontal));
 
-  for (int j = 0; j < bitMap.height(); j += blockSize) {
-    for (int i = 0; i < bitMap.width(); i += blockSize) {
+  for (int j = 0; j < bitmap.height(); j += blockSize) {
+    for (int i = 0; i < bitmap.width(); i += blockSize) {
 
-      const CieLab avgColor = getAverage(bitMap, i, j);
+      const CieLab avgColor = getAverage(bitmap, i, j);
       const int texIdx = findClosestColorIdx(avgColor, quantColors);
 
       const int newJ = j / blockSize;

@@ -38,9 +38,9 @@ struct CieLab {
   double lStar, aStar, bStar;
 };
 
-class BitMap {
+class Bitmap {
 public:
-  BitMap(int width, int height)
+  Bitmap(int width, int height)
       : _width(width), _height(height),
         bits(height, std::vector<CieLab>(width, CieLab())) {}
 

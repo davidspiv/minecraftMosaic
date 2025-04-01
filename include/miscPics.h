@@ -5,8 +5,8 @@
 
 #include <vector>
 
-void createQuantizedPic(const BitMap &bitMap);
+void createQuantizedPic(const Bitmap &bitmap);
 
-void createAtlasPic(const std::vector<BitMap> &validTextures);
+void createAtlasPic(const std::vector<Bitmap> &validTextures);
 
 #endif

@@ -4,6 +4,6 @@
 #include "color.h"
 #include "picture.h"
 
-void createAvgPic(const BitMap &bitMap);
+void createAvgPic(const Bitmap &bitmap);
 
 #endif

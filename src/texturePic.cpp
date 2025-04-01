@@ -22,9 +22,9 @@ std::vector<std::string> getValidPaths(std::string dir) {
 }
 
 
-std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths) {
+std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
   const size_t numTiles = fPaths.size();
-  std::vector<BitMap> validTextures;
+  std::vector<Bitmap> validTextures;
 
   for (size_t i = 0; i < numTiles; i++) {
 
@@ -44,7 +44,7 @@ std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths) {
     }
 
     if (!isTransparent) {
-      BitMap bitMap(16, 16);
+      Bitmap bitmap(16, 16);
       for (size_t j = 0; j < 16; j++) {
         for (size_t k = 0; k < 16; k++) {
           const int r = texture.red(k, j);
@@ -52,12 +52,12 @@ std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths) {
           const int b = texture.blue(k, j);
 
           StdRGB stdRGB(r, g, b);
-          bitMap.set(k, j, CieLab(stdRGB));
+          bitmap.set(k, j, CieLab(stdRGB));
         }
       }
 
 
-      validTextures.push_back(bitMap);
+      validTextures.push_back(bitmap);
     }
   }
 
@@ -66,26 +66,26 @@ std::vector<BitMap> getValidTextures(std::vector<std::string> fPaths) {
 
 
 std::vector<CieLab>
-getTextureAvgColors(const std::vector<BitMap> &validTextures) {
+getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
   std::vector<CieLab> avgColors(numValidTiles, CieLab());
 
   for (size_t i = 0; i < numValidTiles; i++) {
-    BitMap bitMap(validTextures[i]);
-    avgColors.at(i) = getAverage(bitMap, 0, 0);
+    Bitmap bitmap(validTextures[i]);
+    avgColors.at(i) = getAverage(bitmap, 0, 0);
   }
 
   return avgColors;
 }
 
 
-void createTexturedPic(const BitMap &bitMap,
-                       const std::vector<BitMap> &validTextures) {
+void createTexturedPic(const Bitmap &bitmap,
+                       const std::vector<Bitmap> &validTextures) {
 
   const std::vector<CieLab> textureAvgColors =
       getTextureAvgColors(validTextures);
   const std::vector<std::vector<int>> textureLookupTable =
-      buildLookupTable(bitMap, textureAvgColors);
+      buildLookupTable(bitmap, textureAvgColors);
 
   Picture texturedPic(textureLookupTable.at(0).size() * blockSize,
                       textureLookupTable.size() * blockSize, 0, 0, 0);

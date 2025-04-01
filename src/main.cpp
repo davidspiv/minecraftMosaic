@@ -15,7 +15,7 @@ int main() {
   const size_t width = srcPic.width();
   const size_t height = srcPic.height();
 
-  BitMap bitMap(width, height);
+  Bitmap bitmap(width, height);
 
   for (size_t j = 0; j < height; j++) {
     for (size_t i = 0; i < width; i++) {
@@ -26,17 +26,17 @@ int main() {
       StdRGB stdRGB(r, g, b);
       CieLab cieLab(stdRGB);
 
-      bitMap.set(i, j, cieLab);
+      bitmap.set(i, j, cieLab);
     }
   }
   //   gaussianBlur(srcPic, 20);
 
   const std::string dir = "./blocks";
   const std::vector<std::string> fPaths = getValidPaths(dir);
-  const std::vector<BitMap> validTextures = getValidTextures(fPaths);
+  const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
-  createTexturedPic(bitMap, validTextures);
-  createQuantizedPic(bitMap);
-  createAvgPic(bitMap);
+  createTexturedPic(bitmap, validTextures);
+  createQuantizedPic(bitmap);
+  createAvgPic(bitmap);
   createAtlasPic(validTextures);
 }
