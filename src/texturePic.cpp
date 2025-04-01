@@ -32,6 +32,10 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
 
     bool isTransparent = false;
 
+    int rAvg = 0;
+    int gAvg = 0;
+    int bAvg = 0;
+
     for (size_t j = 0; j < blockSize && !isTransparent; j++) {
       for (size_t k = 0; k < blockSize; k++) {
         const int a = texture.alpha(k, j);
@@ -40,25 +44,57 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
           isTransparent = true;
           break;
         }
+
+        rAvg += texture.red(k, j);
+        gAvg += texture.green(k, j);
+        bAvg += texture.blue(k, j);
       }
     }
 
-    if (!isTransparent) {
-      Bitmap bitmap(16, 16);
-      for (size_t j = 0; j < 16; j++) {
-        for (size_t k = 0; k < 16; k++) {
-          const int r = texture.red(k, j);
-          const int g = texture.green(k, j);
-          const int b = texture.blue(k, j);
+    if (isTransparent)
+      continue;
 
-          StdRGB stdRGB(r, g, b);
-          bitmap.set(k, j, CieLab(stdRGB));
-        }
+    const int pixelCount = blockSize * blockSize;
+
+    rAvg /= pixelCount;
+    gAvg /= pixelCount;
+    bAvg /= pixelCount;
+
+    const StdRGB colorAvg(rAvg, gAvg, bAvg);
+
+    int diff = 0;
+    int diffMax = 400'000;
+
+    for (size_t j = 0; j < blockSize && diff < diffMax; j++) {
+      for (size_t k = 0; k < blockSize; k++) {
+        const int rCurr = texture.red(k, j);
+        const int gCurr = texture.green(k, j);
+        const int bCurr = texture.blue(k, j);
+
+        const StdRGB colorCurr(rCurr, gCurr, bCurr);
+
+        diff += distSquared(colorAvg, colorCurr);
       }
-
-
-      validTextures.push_back(bitmap);
     }
+
+
+    if (diff > diffMax)
+      continue;
+
+    Bitmap bitmap(blockSize, blockSize);
+    for (size_t j = 0; j < blockSize; j++) {
+      for (size_t k = 0; k < blockSize; k++) {
+        const int r = texture.red(k, j);
+        const int g = texture.green(k, j);
+        const int b = texture.blue(k, j);
+
+        StdRGB stdRGB(r, g, b);
+        bitmap.set(k, j, CieLab(stdRGB));
+      }
+    }
+
+
+    validTextures.push_back(bitmap);
   }
 
   return validTextures;

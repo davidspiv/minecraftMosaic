@@ -13,7 +13,7 @@
 int main() {
 
   Timer timer;
-  Picture srcPic("./srcPics/tahoe.png");
+  Picture srcPic("./srcPics/autumn.png");
   Bitmap bitmap = srcPic.bitmap();
 
   //   gaussianBlur(srcPic, 20);

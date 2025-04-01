@@ -10,6 +10,7 @@
 
 constexpr int blockSize = 16;
 
+int distSquared(const StdRGB &colorA, const StdRGB &colorB);
 double distSquared(const LinRGB &colorA, const LinRGB &colorB);
 double distSquared(const CieLab &colorA, const CieLab &colorB);
 

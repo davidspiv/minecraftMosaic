@@ -26,8 +26,8 @@ std::vector<CieLab> getQuantizedColors() {
 
 Bitmap createQuantizedPic(const Bitmap &bitmapIn) {
 
-  // // endesgaPalette, apolloPalette, resurrectPalette, zughyPalette
-  //   const std::vector<StdRGB> palette = zughyPalette;
+  //   // endesgaPalette, apolloPalette, resurrectPalette, zughyPalette
+  //   const std::vector<StdRGB> palette = endesgaPalette;
   //   std::vector<CieLab> discreteColors(palette.size());
   //   std::transform(palette.begin(), palette.end(), discreteColors.begin(),
   //                  [](StdRGB c) { return CieLab(c); });
