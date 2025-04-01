@@ -13,7 +13,7 @@ int main() {
   Timer timer;
   Picture srcPic("./srcPics/tahoe.png");
   const size_t width = srcPic.width();
-  const size_t height = srcPic.width();
+  const size_t height = srcPic.height();
 
   BitMap bitMap(width, height);
 
@@ -28,16 +28,14 @@ int main() {
       bitMap.set(i, j, stdRGB);
     }
   }
-
-
   //   gaussianBlur(srcPic, 20);
 
-  const std::string dir = "./blocks";
-  const std::vector<std::string> fPaths = getValidPaths(dir);
-  const std::vector<BitMap> validTextures = getValidTextures(fPaths);
+  //   const std::string dir = "./blocks";
+  //   const std::vector<std::string> fPaths = getValidPaths(dir);
+  //   const std::vector<BitMap> validTextures = getValidTextures(fPaths);
 
-  createTexturedPic(bitMap, validTextures);
+  //   createTexturedPic(bitMap, validTextures);
   createQuantizedPic(bitMap);
-  createAvgPic(bitMap);
-  createAtlasPic(validTextures);
+  //   createAvgPic(bitMap);
+  //   createAtlasPic(validTextures);
 }
