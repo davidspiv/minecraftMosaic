@@ -52,13 +52,13 @@ Bitmap createQuantizedPic(const Bitmap &bitmapIn) {
 }
 
 
-void createAtlasPic(const std::vector<Bitmap> &validTextures) {
+Bitmap createAtlasPic(const std::vector<Bitmap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
   const int gridSize =
       std::ceil(std::sqrt(numValidTiles)); // Ensure a square grid
 
   const int atlasSize = gridSize * blockSize;
-  Picture atlas(atlasSize, atlasSize, 0, 0, 0);
+  Bitmap bitmapOut(atlasSize, atlasSize);
 
   for (size_t i = 0; i < numValidTiles; i++) {
     Bitmap bitmap(validTextures[i]);
@@ -68,12 +68,11 @@ void createAtlasPic(const std::vector<Bitmap> &validTextures) {
 
     for (size_t j = 0; j < blockSize; j++) {
       for (size_t k = 0; k < blockSize; k++) {
-        auto [r, g, b] = StdRGB(bitmap.get(k, j));
 
-        atlas.set(xOffset + k, yOffset + j, r, g, b, 255);
+        bitmapOut.set(xOffset + k, yOffset + j, bitmap.get(k, j));
       }
     }
   }
 
-  atlas.save("./outputPics/atlas.png");
+  return bitmapOut;
 }

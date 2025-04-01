@@ -71,7 +71,7 @@ Picture::Picture(const std::vector<std::vector<int>> &grays) {
 
 Picture::Picture(const Bitmap &bitmap) {
   const int channels = 4;
-  const int factor = 4;
+  const int factor = 16;
 
   _width = bitmap.width() * factor;
   _height = bitmap.height() * factor;

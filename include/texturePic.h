@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/util.h"
 
