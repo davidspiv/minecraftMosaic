@@ -13,19 +13,19 @@
 int main() {
 
   Timer timer;
-  Picture srcPic("./srcPics/lotus.png");
+  Picture srcPic("./srcPics/tahoe.png");
   Bitmap bitmap = srcPic.bitmap();
 
   //   gaussianBlur(srcPic, 20);
 
-  //   const std::string dir = "./blocks";
-  //   const std::vector<std::string> fPaths = getValidPaths(dir);
-  //   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
+  const std::string dir = "./blocks";
+  const std::vector<std::string> fPaths = getValidPaths(dir);
+  const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
-  //   createTexturedPic(bitmap, validTextures);
+  createTexturedPic(bitmap, validTextures);
   Bitmap quantBitmap = createQuantizedPic(bitmap);
   Picture quantPic(quantBitmap);
   quantPic.save("./outputPics/quantizedPic.png");
-  //   createAvgPic(bitmap);
-  //   createAtlasPic(validTextures);
+  createAvgPic(bitmap);
+  createAtlasPic(validTextures);
 }
