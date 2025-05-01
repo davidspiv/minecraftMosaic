@@ -69,9 +69,8 @@ Picture::Picture(const std::vector<std::vector<int>> &grays) {
 // }
 
 
-Picture::Picture(const Bitmap &bitmap) {
+Picture::Picture(const Bitmap &bitmap, const int factor) {
   const int channels = 4;
-  const int factor = 16;
 
   _width = bitmap.width() * factor;
   _height = bitmap.height() * factor;
@@ -99,7 +98,7 @@ Picture::Picture(const Bitmap &bitmap) {
 }
 
 
-Bitmap Picture::bitmap() const {
+Bitmap Picture::getBitmap() const {
   Bitmap bitmap(_width, _height);
 
   for (int y = 0; y < _height; ++y) {

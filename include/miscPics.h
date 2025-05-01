@@ -8,7 +8,7 @@
 
 void createQuantizedPic(const Bitmap &bitmapIn);
 
-Bitmap createAtlasPic(const std::vector<Bitmap> &validTextures);
+void createAtlasPic(const std::vector<Bitmap> &validTextures);
 
 const std::vector<StdRGB> endesgaPalette = {
     {190, 74, 47},   {215, 118, 67},  {234, 212, 170}, {228, 166, 114},

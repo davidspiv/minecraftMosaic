@@ -16,7 +16,7 @@ int main() {
 
   gaussianBlur(srcPic, 20);
   Picture minPic = srcPic.bilinearResize(0.0625); // one-sixteenth
-  Bitmap bitmap = minPic.bitmap();
+  Bitmap bitmap = minPic.getBitmap();
 
 
   const std::string textureDir = "./blocks";
@@ -24,6 +24,6 @@ int main() {
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
   createTexturedPic(bitmap, validTextures);
-  createQuantizedPic(bitmap);
-  //   Bitmap atlasBitmap = createAtlasPic(validTextures);
+  //   createQuantizedPic(bitmap);
+  //   createAtlasPic(validTextures);
 }

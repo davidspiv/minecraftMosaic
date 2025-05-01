@@ -115,14 +115,14 @@ getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 }
 
 
-void createTexturedPic(const Bitmap &bitmap,
+void createTexturedPic(const Bitmap &bitmapIn,
                        const std::vector<Bitmap> &validTextures) {
 
   const std::vector<CieLab> textureAvgColors =
       getTextureAvgColors(validTextures);
 
   const std::vector<std::vector<int>> textureLookupTable =
-      buildLookupTable(bitmap, textureAvgColors);
+      buildLookupTable(bitmapIn, textureAvgColors);
 
   Picture texturedPic(textureLookupTable.at(0).size() * blockSize,
                       textureLookupTable.size() * blockSize, 0, 0, 0);
@@ -136,7 +136,6 @@ void createTexturedPic(const Bitmap &bitmap,
       texturedPic.set(i, j, r, g, b);
     }
   }
-
 
   texturedPic.save("./outputPics/texturedPic.png");
 }

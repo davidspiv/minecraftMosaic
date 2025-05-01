@@ -53,12 +53,12 @@ void createQuantizedPic(const Bitmap &bitmapIn) {
     }
   }
 
-  Picture quantPic(bitmapOut);
+  Picture quantPic(bitmapOut, blockSize);
   quantPic.save("./outputPics/quantizedPic.png");
 }
 
 
-Bitmap createAtlasPic(const std::vector<Bitmap> &validTextures) {
+void createAtlasPic(const std::vector<Bitmap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
   const int gridSize =
       std::ceil(std::sqrt(numValidTiles)); // Ensure a square grid
@@ -80,5 +80,6 @@ Bitmap createAtlasPic(const std::vector<Bitmap> &validTextures) {
     }
   }
 
-  return bitmapOut;
+  Picture atlasPic(bitmapOut, blockSize);
+  atlasPic.save("./outputPics/atlasPic.png");
 }
