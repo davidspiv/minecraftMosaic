@@ -139,19 +139,57 @@ void Rgb::print() const {
 Xyz::Xyz(float x, float y, float z) : Color(x, y, z) {}
 
 
+std::array<double, 3>
+multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
+               const std::array<double, 3> &vector) {
+
+  std::array<double, 3> result = {0.0, 0.0, 0.0};
+
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      result[i] += matrix[i][j] * vector[j];
+    }
+  }
+
+  return result;
+}
+
+
+// Rgb Xyz::to_rgb() const {
+//   static const Matrix M_matrix =
+//       create_to_xyz_transformation_matrix(REF_WHITE_D65).invert();
+
+//   const Matrix color_as_column = to_column();
+
+//   Matrix xyz_as_matrix = M_matrix.multiply(color_as_column);
+
+//   // Absolute colorimetric
+//   const float r_corr = apply_gamma(xyz_as_matrix(0, 0));
+//   const float g_corr = apply_gamma(xyz_as_matrix(1, 0));
+//   const float b_corr = apply_gamma(xyz_as_matrix(2, 0));
+
+//   const float r_norm = std::clamp(r_corr, 0.0f, 1.0f) * 255.0f;
+//   const float g_norm = std::clamp(g_corr, 0.0f, 1.0f) * 255.0f;
+//   const float b_norm = std::clamp(b_corr, 0.0f, 1.0f) * 255.0f;
+
+//   return Rgb(r_norm, g_norm, b_norm);
+// }
+
+
 Rgb Xyz::to_rgb() const {
+  constexpr std::array<std::array<double, 3>, 3> xyzToRGBMatrix = {{
+      {3.2404542, -1.5371385, -0.4985314},
+      {-0.9692660, 1.8760108, 0.0415560},
+      {0.0556434, -0.2040259, 1.0572252},
+  }};
 
-  const Matrix color_as_column = to_column();
-
-  const Matrix M_matrix =
-      create_to_xyz_transformation_matrix(REF_WHITE_D65).invert();
-
-  Matrix xyz_as_matrix = M_matrix.multiply(color_as_column);
+  std::array<double, 3> linRGB =
+      multiplyMatrix(xyzToRGBMatrix, {m_values[0], m_values[1], m_values[2]});
 
   // Absolute colorimetric
-  const float r_corr = apply_gamma(xyz_as_matrix(0, 0));
-  const float g_corr = apply_gamma(xyz_as_matrix(1, 0));
-  const float b_corr = apply_gamma(xyz_as_matrix(2, 0));
+  const float r_corr = apply_gamma(linRGB[0]);
+  const float g_corr = apply_gamma(linRGB[1]);
+  const float b_corr = apply_gamma(linRGB[2]);
 
   const float r_norm = std::clamp(r_corr, 0.0f, 1.0f) * 255.0f;
   const float g_norm = std::clamp(g_corr, 0.0f, 1.0f) * 255.0f;

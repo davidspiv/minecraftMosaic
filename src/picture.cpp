@@ -177,16 +177,17 @@ Picture::Picture(const std::string &filename) {
   _height = h;
 }
 
-int clampVal(double val) { return std::clamp(int(std::round(val)), 0, 255); };
+int clampVal(float val) { return std::clamp(int(std::round(val)), 0, 255); };
 
 
-Picture Picture::bilinearResize(double factor) const {
+Picture Picture::bilinearResize(float factor) const {
   if (factor == 1)
     return *this;
 
   // returns a rgb struct not associated with the ImageEditor class.
   auto getRgb = [&](int x, int y) -> const clrspc::Rgb {
-    return {red(x, y), green(x, y), blue(x, y)};
+    return {static_cast<float>(red(x, y)), static_cast<float>(green(x, y)),
+            static_cast<float>(blue(x, y))};
   };
 
   const size_t inHeight = _height;
@@ -194,9 +195,9 @@ Picture Picture::bilinearResize(double factor) const {
   const size_t outHeight = static_cast<int>(round(inHeight * factor));
   const size_t outWidth = static_cast<int>(round(inWidth * factor));
 
-  const double xRatio = outWidth > 1 ? double(inWidth - 1) / (outWidth - 1) : 0;
-  const double yRatio =
-      outHeight > 1 ? double(inHeight - 1) / (outHeight - 1) : 0;
+  const float xRatio = outWidth > 1 ? float(inWidth - 1) / (outWidth - 1) : 0;
+  const float yRatio =
+      outHeight > 1 ? float(inHeight - 1) / (outHeight - 1) : 0;
 
   Picture newPic(outWidth, outHeight, 0, 0, 0);
 
@@ -207,8 +208,8 @@ Picture Picture::bilinearResize(double factor) const {
       const int xHigh = std::min(xLow + 1, int(inWidth - 1));
       const int yHigh = std::min(yLow + 1, int(inHeight - 1));
 
-      const double yWeight = yRatio * i - yLow;
-      const double xWeight = xRatio * j - xLow;
+      const float yWeight = yRatio * i - yLow;
+      const float xWeight = xRatio * j - xLow;
 
       // A,B,C, and D are known rgb values in original image
       clrspc::Rgb A = getRgb(xLow, yLow);

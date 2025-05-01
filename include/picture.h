@@ -25,7 +25,7 @@ public:
 
   void set(int x, int y, int red, int green, int blue, int alpha = 255);
   void save(const std::string &filename) const;
-  Picture bilinearResize(double factor) const;
+  Picture bilinearResize(float factor) const;
   Bitmap getBitmap() const;
 
 private:
