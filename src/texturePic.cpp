@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "../include/Color_Space.h"
-#include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/util.h"
 
@@ -61,7 +60,7 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
     gAvg /= pixelCount;
     bAvg /= pixelCount;
 
-    const StdRGB colorAvg(rAvg, gAvg, bAvg);
+    const clrspc::Rgb colorAvg(rAvg, gAvg, bAvg);
 
     int diff = 0;
     int diffMax = 400'000;
@@ -72,7 +71,7 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
         const int gCurr = texture.green(k, j);
         const int bCurr = texture.blue(k, j);
 
-        const StdRGB colorCurr(rCurr, gCurr, bCurr);
+        const clrspc::Rgb colorCurr(rCurr, gCurr, bCurr);
 
         diff += distSquared(colorAvg, colorCurr);
       }

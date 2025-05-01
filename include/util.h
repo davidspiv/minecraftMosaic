@@ -2,7 +2,6 @@
 #define UTIL_H
 
 #include "../include/Color_Space.h"
-#include "../include/color.h"
 #include "../include/picture.h"
 
 #include <array>
@@ -11,8 +10,8 @@
 
 constexpr int blockSize = 16;
 
-int distSquared(const StdRGB &colorA, const StdRGB &colorB);
-double distSquared(const LinRGB &colorA, const LinRGB &colorB);
+int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB);
+
 double distSquared(const clrspc::Lab &colorA, const clrspc::Lab &colorB);
 
 std::array<double, 3>

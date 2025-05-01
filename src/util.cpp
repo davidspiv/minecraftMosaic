@@ -1,6 +1,5 @@
 #include "../include/util.h"
 #include "../include/Color_Space.h"
-#include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/timer.h"
 
@@ -9,20 +8,11 @@
 #include <cmath>
 
 
-int distSquared(const StdRGB &colorA, const StdRGB &colorB) {
+int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB) {
 
-  const int xD = colorB.r - colorA.r;
-  const int yD = colorB.g - colorA.g;
-  const int zD = colorB.b - colorA.b;
-  return xD * xD + yD * yD + zD * zD;
-}
-
-
-double distSquared(const LinRGB &colorA, const LinRGB &colorB) {
-
-  const double xD = colorB.r - colorA.r;
-  const double yD = colorB.g - colorA.g;
-  const double zD = colorB.b - colorA.b;
+  const int xD = colorB.r() - colorA.r();
+  const int yD = colorB.g() - colorA.g();
+  const int zD = colorB.b() - colorA.b();
   return xD * xD + yD * yD + zD * zD;
 }
 

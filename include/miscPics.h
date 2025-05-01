@@ -2,7 +2,6 @@
 #define MISC_PICS_H
 
 #include "../include/Bitmap.h"
-#include "../include/color.h"
 #include "../include/picture.h"
 
 #include <vector>

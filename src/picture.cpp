@@ -1,7 +1,6 @@
 
 #include "../include/picture.h"
 #include "../include/Color_Space.h"
-#include "../include/color.h"
 #include "../include/timer.h"
 
 #include <algorithm>
@@ -59,7 +58,7 @@ Picture::Picture(const std::vector<std::vector<int>> &grays) {
 
 //   for (int j = 0; j < _height; j++) {
 //     for (int i = 0; i < _width; i++) {
-//       auto [r, g, b] = StdRGB(bitmap.get(i, j));
+//       auto [r, g, b] = clrspc::Rgb(bitmap.get(i, j));
 
 //       *ptr++ = r;
 //       *ptr++ = g;
@@ -185,8 +184,8 @@ Picture Picture::bilinearResize(double factor) const {
   if (factor == 1)
     return *this;
 
-  // returns a StdRGB struct not associated with the ImageEditor class.
-  auto getStdRGB = [&](int x, int y) -> const StdRGB {
+  // returns a rgb struct not associated with the ImageEditor class.
+  auto getRgb = [&](int x, int y) -> const clrspc::Rgb {
     return {red(x, y), green(x, y), blue(x, y)};
   };
 
@@ -211,37 +210,37 @@ Picture Picture::bilinearResize(double factor) const {
       const double yWeight = yRatio * i - yLow;
       const double xWeight = xRatio * j - xLow;
 
-      // A,B,C, and D are known stdRGB values in original image
-      StdRGB A = getStdRGB(xLow, yLow);
-      StdRGB B = getStdRGB(xHigh, yLow);
-      StdRGB C = getStdRGB(xLow, yHigh);
-      StdRGB D = getStdRGB(xHigh, yHigh);
+      // A,B,C, and D are known rgb values in original image
+      clrspc::Rgb A = getRgb(xLow, yLow);
+      clrspc::Rgb B = getRgb(xHigh, yLow);
+      clrspc::Rgb C = getRgb(xLow, yHigh);
+      clrspc::Rgb D = getRgb(xHigh, yHigh);
 
       // computes a weighted average of the values associated with the four
       // closest points
-      auto interpolate = [xWeight, yWeight](int a, int b, int c, int d) {
+      auto interpolate = [xWeight, yWeight](float a, float b, float c,
+                                            float d) {
         // We first compute the interpolated value of AB and CD in the width
         // dimension
-        const double interpolatedAB = a * (1 - xWeight) + b * xWeight;
-        const double interpolatedCD = c * (1 - xWeight) + d * xWeight;
+        const float interpolatedAB = a * (1 - xWeight) + b * xWeight;
+        const float interpolatedCD = c * (1 - xWeight) + d * xWeight;
 
         // Then we will do linear interpolation between the points generated
         // from the two previous interpolations above
-        return static_cast<int>((interpolatedAB * (1.0 - yWeight)) +
-                                (interpolatedCD * yWeight));
+        return (interpolatedAB * (1.f - yWeight)) + (interpolatedCD * yWeight);
       };
 
-      auto calcStdRGB = [&](const StdRGB &A, const StdRGB &B, const StdRGB &C,
-                            const StdRGB &D) -> StdRGB {
-        return {interpolate(A.r, B.r, C.r, D.r),
-                interpolate(A.g, B.g, C.g, D.g),
-                interpolate(A.b, B.b, C.b, D.b)};
+      auto calcRgb = [&](const clrspc::Rgb &A, const clrspc::Rgb &B,
+                         const clrspc::Rgb &C,
+                         const clrspc::Rgb &D) -> clrspc::Rgb {
+        return {interpolate(A.r(), B.r(), C.r(), D.r()),
+                interpolate(A.g(), B.g(), C.g(), D.g()),
+                interpolate(A.b(), B.b(), C.b(), D.b())};
       };
 
-      StdRGB stdRGB = calcStdRGB(A, B, C, D);
+      const auto [r, g, b] = calcRgb(A, B, C, D).get_values();
 
-      newPic.set(j, i, clampVal(stdRGB.r), clampVal(stdRGB.g),
-                 clampVal(stdRGB.b));
+      newPic.set(j, i, r, g, b);
     }
   }
 

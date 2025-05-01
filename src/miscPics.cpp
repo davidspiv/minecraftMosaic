@@ -1,7 +1,6 @@
 #include "../include/miscPics.h"
 #include "../include/Bitmap.h"
 #include "../include/Color_Space.h"
-#include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/util.h"
 

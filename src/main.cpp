@@ -1,4 +1,3 @@
-#include "../include/color.h"
 #include "../include/gaussianBlur.h"
 #include "../include/miscPics.h"
 #include "../include/picture.h"
