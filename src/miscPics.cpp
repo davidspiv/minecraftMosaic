@@ -28,23 +28,23 @@ Bitmap createQuantizedPic(const Bitmap &bitmapIn) {
 
   // endesgaPalette, apolloPalette, resurrectPalette, zughyPalette
   //   const std::vector<StdRGB> palette = apolloPalette;
-  //   std::vector<CieLab> discreteColors(palette.size());
-  //   std::transform(palette.begin(), palette.end(), discreteColors.begin(),
+  //   std::vector<CieLab> colors(palette.size());
+  //   std::transform(palette.begin(), palette.end(), colors.begin(),
   //                  [](StdRGB c) { return CieLab(c); });
 
-  const std::vector<CieLab> discreteColors = getQuantizedColors();
+  const std::vector<CieLab> colors = getQuantizedColors();
 
   const std::vector<std::vector<int>> lookupTable =
-      buildLookupTable(bitmapIn, discreteColors);
+      buildLookupTable(bitmapIn, colors);
 
 
   Bitmap bitmapOut(bitmapIn.width(), bitmapIn.height());
 
   for (int j = 0; j < bitmapIn.height(); j++) {
     for (int i = 0; i < bitmapIn.width(); i++) {
-      const int texIdx = lookupTable[i][j];
+      const int texIdx = lookupTable[j][i];
 
-      bitmapOut.set(i, j, discreteColors.at(texIdx));
+      bitmapOut.set(i, j, colors.at(texIdx));
     }
   }
 

@@ -12,7 +12,7 @@
 int main() {
 
   Timer timer;
-  Picture srcPic("./srcPics/lotus.png");
+  Picture srcPic("./srcPics/road.png");
 
   Picture minPic = srcPic.bilinearResize(0.0625);
   Bitmap bitmap = minPic.bitmap();
@@ -24,14 +24,14 @@ int main() {
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
   createTexturedPic(bitmap, validTextures);
-  //   Bitmap quantBitmap = createQuantizedPic(bitmap);
-  //   Bitmap atlasBitmap = createAtlasPic(validTextures);
+  Bitmap quantBitmap = createQuantizedPic(bitmap);
+  Bitmap atlasBitmap = createAtlasPic(validTextures);
 
   //   Picture texturePic(textureBitmap);
-  //   Picture quantPic(quantBitmap);
-  //   Picture atlasPic(atlasBitmap);
+  Picture quantPic(quantBitmap);
+  Picture atlasPic(atlasBitmap);
 
   //   texturePic.save("./outputPics/texturedPic.png");
-  //   quantPic.save("./outputPics/quantizedPic.png");
-  //   atlasPic.save("./outputPics/atlasPic.png");
+  quantPic.save("./outputPics/quantizedPic.png");
+  atlasPic.save("./outputPics/atlasPic.png");
 }

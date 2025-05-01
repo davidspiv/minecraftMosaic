@@ -128,14 +128,14 @@ void createTexturedPic(const Bitmap &bitmap,
 
   for (int j = 0; j < texturedPic.height(); j++) {
     for (int i = 0; i < texturedPic.width(); i++) {
-
-      const int texIdx = textureLookupTable.at(i / blockSize).at(j / blockSize);
+      const int texIdx = textureLookupTable.at(j / blockSize).at(i / blockSize);
       auto [r, g, b] =
           StdRGB(validTextures.at(texIdx).get(i % blockSize, j % blockSize));
 
       texturedPic.set(i, j, r, g, b, 255);
     }
   }
+
 
   texturedPic.save("./outputPics/texturedPic.png");
 }

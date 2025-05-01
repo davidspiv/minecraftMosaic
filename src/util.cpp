@@ -103,7 +103,7 @@ buildLookupTable(const Bitmap &bitmap, const std::vector<CieLab> &quantColors) {
 
       const int texIdx = findClosestColorIdx(bitmap.get(i, j), quantColors);
 
-      lookupTable[i][j] = texIdx;
+      lookupTable[j][i] = texIdx;
     }
   }
 
