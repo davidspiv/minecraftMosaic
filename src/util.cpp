@@ -1,4 +1,5 @@
 #include "../include/util.h"
+#include "../include/Color_Space.h"
 #include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/timer.h"
@@ -26,11 +27,11 @@ double distSquared(const LinRGB &colorA, const LinRGB &colorB) {
 }
 
 
-double distSquared(const CieLab &colorA, const CieLab &colorB) {
+double distSquared(const clrspc::Lab &colorA, const clrspc::Lab &colorB) {
 
-  const double xD = colorB.lStar - colorA.lStar;
-  const double yD = colorB.aStar - colorA.aStar;
-  const double zD = colorB.bStar - colorA.bStar;
+  const double xD = colorB.l() - colorA.l();
+  const double yD = colorB.a() - colorA.a();
+  const double zD = colorB.b() - colorA.b();
   return xD * xD + yD * yD + zD * zD;
 }
 
@@ -51,7 +52,7 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
 }
 
 
-CieLab getAverage(const Bitmap &bitmap, int originX, int originY) {
+clrspc::Lab getAverage(const Bitmap &bitmap, int originX, int originY) {
   double lStar = 0.0;
   double aStar = 0.0;
   double bStar = 0.0;
@@ -61,21 +62,23 @@ CieLab getAverage(const Bitmap &bitmap, int originX, int originY) {
 
   for (int x = originX; x < maxX; ++x) {
     for (int y = originY; y < maxY; ++y) {
-      const CieLab &cieLabComponent = bitmap.get(x, y);
+      const clrspc::Lab &cieLabComponent = bitmap.get(x, y);
 
-      lStar += cieLabComponent.lStar;
-      aStar += cieLabComponent.aStar;
-      bStar += cieLabComponent.bStar;
+      const auto [l, a, b] = cieLabComponent.get_values();
+
+      lStar += l;
+      aStar += a;
+      bStar += b;
     }
   }
 
   double invNumPx = 1.0 / numPx;
-  return CieLab(lStar * invNumPx, aStar * invNumPx, bStar * invNumPx);
+  return clrspc::Lab(lStar * invNumPx, aStar * invNumPx, bStar * invNumPx);
 }
 
 
-size_t findClosestColorIdx(const CieLab &targetColor,
-                           const std::vector<CieLab> &quantColors) {
+size_t findClosestColorIdx(const clrspc::Lab &targetColor,
+                           const std::vector<clrspc::Lab> &quantColors) {
   size_t closestColorIdx = 0;
   double minDist = std::numeric_limits<double>::max();
 
@@ -93,7 +96,8 @@ size_t findClosestColorIdx(const CieLab &targetColor,
 
 
 std::vector<std::vector<int>>
-buildLookupTable(const Bitmap &bitmap, const std::vector<CieLab> &quantColors) {
+buildLookupTable(const Bitmap &bitmap,
+                 const std::vector<clrspc::Lab> &quantColors) {
   std::vector<std::vector<int>> lookupTable(bitmap.height(),
                                             std::vector<int>(bitmap.width()));
 
@@ -116,7 +120,7 @@ void saveAsPNG(const Bitmap &bitmap) {
 
   for (int i = 0; i < bitmap.width(); i++) {
     for (int j = 0; j < bitmap.height(); j++) {
-      auto [r, g, b] = StdRGB(bitmap.get(i, j));
+      auto [r, g, b] = bitmap.get(i, j).to_xyz().to_rgb().get_values();
 
       quantPic.set(i, j, r, g, b);
     }

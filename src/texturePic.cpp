@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "../include/Color_Space.h"
 #include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/util.h"
@@ -88,8 +89,8 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
         const int g = texture.green(k, j);
         const int b = texture.blue(k, j);
 
-        StdRGB stdRGB(r, g, b);
-        bitmap.set(k, j, CieLab(stdRGB));
+        clrspc::Rgb rgb(r, g, b);
+        bitmap.set(k, j, rgb.to_xyz().to_lab());
       }
     }
 
@@ -101,10 +102,10 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
 }
 
 
-std::vector<CieLab>
+std::vector<clrspc::Lab>
 getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
-  std::vector<CieLab> avgColors(numValidTiles, CieLab());
+  std::vector<clrspc::Lab> avgColors(numValidTiles, clrspc::Lab(0.f, 0.f, 0.f));
 
   for (size_t i = 0; i < numValidTiles; i++) {
     Bitmap bitmap(validTextures[i]);
@@ -118,7 +119,7 @@ getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 void createTexturedPic(const Bitmap &bitmapIn,
                        const std::vector<Bitmap> &validTextures) {
 
-  const std::vector<CieLab> textureAvgColors =
+  const std::vector<clrspc::Lab> textureAvgColors =
       getTextureAvgColors(validTextures);
 
   const std::vector<std::vector<int>> textureLookupTable =
@@ -130,8 +131,11 @@ void createTexturedPic(const Bitmap &bitmapIn,
   for (int j = 0; j < texturedPic.height(); j++) {
     for (int i = 0; i < texturedPic.width(); i++) {
       const int texIdx = textureLookupTable.at(j / blockSize).at(i / blockSize);
-      auto [r, g, b] =
-          StdRGB(validTextures.at(texIdx).get(i % blockSize, j % blockSize));
+      auto [r, g, b] = validTextures.at(texIdx)
+                           .get(i % blockSize, j % blockSize)
+                           .to_xyz()
+                           .to_rgb()
+                           .get_values();
 
       texturedPic.set(i, j, r, g, b);
     }

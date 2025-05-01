@@ -1,11 +1,12 @@
 #ifndef PICTURE_H
 #define PICTURE_H
 
+#include "Bitmap.h"
+#include "lodepng.h"
+
 #include <string>
 #include <vector>
 
-#include "color.h"
-#include "lodepng.h"
 
 class Picture {
 public:

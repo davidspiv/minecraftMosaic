@@ -1,4 +1,6 @@
 #include "../include/miscPics.h"
+#include "../include/Bitmap.h"
+#include "../include/Color_Space.h"
 #include "../include/color.h"
 #include "../include/picture.h"
 #include "../include/util.h"
@@ -8,14 +10,14 @@
 #include <vector>
 
 
-std::vector<CieLab> getQuantizedColors() {
-  std::vector<CieLab> colors;
+std::vector<clrspc::Lab> getQuantizedColors() {
+  std::vector<clrspc::Lab> colors;
 
   for (int i = 0; i <= 255; i += 15) {
     for (int j = 0; j <= 255; j += 15) {
       for (int k = 0; k <= 255; k += 15) {
-        const StdRGB stdRGB(i, j, k);
-        colors.push_back(CieLab(stdRGB));
+        const clrspc::Rgb rgb(i, j, k);
+        colors.push_back(rgb.to_xyz().to_lab());
       }
     }
   }
@@ -23,12 +25,13 @@ std::vector<CieLab> getQuantizedColors() {
   return colors;
 }
 
-std::vector<CieLab> getPalletColors() {
+std::vector<clrspc::Lab> getPalletColors() {
   //   endesgaPalette, apolloPalette, resurrectPalette, zughyPalette
-  const std::vector<StdRGB> palette = apolloPalette;
-  std::vector<CieLab> colors(palette.size());
-  std::transform(palette.begin(), palette.end(), colors.begin(),
-                 [](StdRGB c) { return CieLab(c); });
+  const std::vector<clrspc::Rgb> palette = apolloPalette;
+  std::vector<clrspc::Lab> colors;
+  colors.reserve(palette.size());
+  std::transform(palette.begin(), palette.end(), std::back_inserter(colors),
+                 [](clrspc::Rgb c) { return c.to_xyz().to_lab(); });
 
   return colors;
 }
@@ -36,8 +39,8 @@ std::vector<CieLab> getPalletColors() {
 
 void createQuantizedPic(const Bitmap &bitmapIn) {
 
-  //   const std::vector<CieLab> colors = getQuantizedColors();
-  const std::vector<CieLab> colors = getPalletColors();
+  //   const std::vector<clrspc::Lab> colors = getQuantizedColors();
+  const std::vector<clrspc::Lab> colors = getPalletColors();
 
   const std::vector<std::vector<int>> lookupTable =
       buildLookupTable(bitmapIn, colors);

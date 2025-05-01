@@ -1,6 +1,7 @@
 #ifndef MISC_PICS_H
 #define MISC_PICS_H
 
+#include "../include/Bitmap.h"
 #include "../include/color.h"
 #include "../include/picture.h"
 
@@ -10,7 +11,7 @@ void createQuantizedPic(const Bitmap &bitmapIn);
 
 void createAtlasPic(const std::vector<Bitmap> &validTextures);
 
-const std::vector<StdRGB> endesgaPalette = {
+const std::vector<clrspc::Rgb> endesgaPalette = {
     {190, 74, 47},   {215, 118, 67},  {234, 212, 170}, {228, 166, 114},
     {184, 111, 80},  {115, 62, 57},   {62, 39, 49},    {162, 38, 51},
     {228, 59, 68},   {247, 118, 34},  {254, 174, 52},  {254, 231, 97},
@@ -20,7 +21,7 @@ const std::vector<StdRGB> endesgaPalette = {
     {38, 43, 68},    {24, 20, 37},    {255, 0, 68},    {104, 56, 108},
     {181, 80, 136},  {246, 117, 122}, {232, 183, 150}, {194, 133, 105}};
 
-const std::vector<StdRGB> apolloPalette = {
+const std::vector<clrspc::Rgb> apolloPalette = {
     {23, 32, 56},    {37, 58, 94},    {60, 94, 139},   {79, 143, 186},
     {115, 190, 211}, {164, 221, 219}, {25, 51, 45},    {37, 86, 46},
     {70, 130, 50},   {117, 167, 67},  {168, 202, 88},  {208, 218, 145},
@@ -35,7 +36,7 @@ const std::vector<StdRGB> apolloPalette = {
     {199, 207, 204}, {235, 237, 233}};
 
 
-const std::vector<StdRGB> resurrectPalette = {
+const std::vector<clrspc::Rgb> resurrectPalette = {
     {46, 34, 47},    {62, 53, 70},    {98, 85, 101},   {150, 108, 108},
     {171, 148, 122}, {105, 79, 98},   {127, 112, 138}, {155, 171, 178},
     {199, 220, 208}, {255, 255, 255}, {110, 39, 39},   {179, 56, 49},
@@ -54,7 +55,7 @@ const std::vector<StdRGB> resurrectPalette = {
     {240, 79, 120},  {246, 129, 129}, {252, 167, 144}, {253, 203, 176}};
 
 
-const std::vector<StdRGB> zughyPalette = {
+const std::vector<clrspc::Rgb> zughyPalette = {
     {71, 45, 60},    {94, 54, 67},    {122, 68, 74},   {160, 91, 83},
     {191, 121, 88},  {238, 161, 96},  {244, 204, 161}, {182, 213, 60},
     {113, 170, 52},  {57, 123, 68},   {60, 89, 86},    {48, 44, 46},
