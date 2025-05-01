@@ -117,26 +117,27 @@ getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 
 void createTexturedPic(const Bitmap &bitmapIn,
                        const std::vector<Bitmap> &validTextures) {
+  const auto textureAvgColors = getTextureAvgColors(validTextures);
+  const auto textureLookupTable = buildLookupTable(bitmapIn, textureAvgColors);
 
-  const std::vector<clrspc::Lab> textureAvgColors =
-      getTextureAvgColors(validTextures);
+  const int outWidth = textureLookupTable[0].size() * blockSize;
+  const int outHeight = textureLookupTable.size() * blockSize;
+  Picture texturedPic(outWidth, outHeight, 0, 0, 0);
 
-  const std::vector<std::vector<int>> textureLookupTable =
-      buildLookupTable(bitmapIn, textureAvgColors);
+  for (size_t blockY = 0; blockY < textureLookupTable.size(); ++blockY) {
+    for (size_t blockX = 0; blockX < textureLookupTable[0].size(); ++blockX) {
+      const int texIdx = textureLookupTable[blockY][blockX];
+      const Bitmap &texture = validTextures[texIdx];
 
-  Picture texturedPic(textureLookupTable.at(0).size() * blockSize,
-                      textureLookupTable.size() * blockSize, 0, 0, 0);
+      for (int y = 0; y < blockSize; ++y) {
+        for (int x = 0; x < blockSize; ++x) {
+          int outX = blockX * blockSize + x;
+          int outY = blockY * blockSize + y;
 
-  for (int j = 0; j < texturedPic.height(); j++) {
-    for (int i = 0; i < texturedPic.width(); i++) {
-      const int texIdx = textureLookupTable.at(j / blockSize).at(i / blockSize);
-      auto [r, g, b] = validTextures.at(texIdx)
-                           .get(i % blockSize, j % blockSize)
-                           .to_xyz()
-                           .to_rgb()
-                           .get_values();
-
-      texturedPic.set(i, j, r, g, b);
+          auto [r, g, b] = texture.get(x, y).to_xyz().to_rgb().get_values();
+          texturedPic.set(outX, outY, r, g, b);
+        }
+      }
     }
   }
 

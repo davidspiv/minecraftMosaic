@@ -112,6 +112,9 @@ Rgb::Rgb(float r, float g, float b) : Color(r, g, b) {
 
 Xyz Rgb::to_xyz() const {
 
+  static const Matrix M_matrix =
+      create_to_xyz_transformation_matrix(REF_WHITE_D65);
+
   auto [r, g, b] = m_values;
 
   // Step 1: Normalize input RGB [0–255] -> [0.0–1.0]
@@ -120,7 +123,6 @@ Xyz Rgb::to_xyz() const {
   const float b_lin = remove_gamma(b / 255.0f);
 
   // Step 2: Convert to XYZ using matrix
-  const Matrix M_matrix = create_to_xyz_transformation_matrix(REF_WHITE_D65);
   const Matrix rgb_lin({{r_lin}, {g_lin}, {b_lin}});
   const Matrix xyz_matrix = M_matrix.multiply(rgb_lin);
 
