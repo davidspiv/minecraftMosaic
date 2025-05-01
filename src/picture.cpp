@@ -98,6 +98,7 @@ Picture::Picture(const Bitmap &bitmap) {
   }
 }
 
+
 Bitmap Picture::bitmap() const {
   Bitmap bitmap(_width, _height);
 
