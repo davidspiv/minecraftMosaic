@@ -1,7 +1,7 @@
 #include "../include/util.h"
 #include "../include/Color_Space.h"
 #include "../include/picture.h"
-#include "../include/timer.h"
+#include "../include/Timer.h"
 
 #include <algorithm>
 #include <array>
