@@ -136,8 +136,7 @@ void createTexturedPic(const Bitmap &bitmapIn,
                            .to_rgb()
                            .get_values();
 
-      texturedPic.set(i, j, static_cast<int>(r), static_cast<int>(g),
-                      static_cast<int>(b));
+      texturedPic.set(i, j, r, g, b);
     }
   }
 
