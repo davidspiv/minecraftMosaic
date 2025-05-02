@@ -1,34 +1,54 @@
 // https://www.youtube.com/watch?v=YG4jexlSAjc&t=711s
 #pragma once
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <string>
-
+#include <unordered_map>
 
 class Timer {
 private:
-  std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint =
-      std::chrono::high_resolution_clock::now();
-  std::string msg;
+  const inline static size_t EXPECTED_MAX_DIGITS = 8;
+  inline static std::unordered_map<std::string, double> data = {};
+  inline static size_t maxLabelSize = 0;
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;
+  std::string label;
 
 public:
-  Timer(const std::string &msg) : msg(msg) {};
-  ~Timer() { Stop(); };
+  inline Timer(const std::string &label)
+      : m_StartTimepoint(std::chrono::high_resolution_clock::now()),
+        label(label) {}
 
-  void Stop() {
-    auto endTimepoint = std::chrono::high_resolution_clock::now();
+  inline ~Timer() { Stop(); }
 
-    auto start = std::chrono::time_point_cast<std::chrono::microseconds>(
-                     m_StartTimepoint)
-                     .time_since_epoch()
-                     .count();
-    auto end =
-        std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint)
-            .time_since_epoch()
-            .count();
+  inline static void printData() {
+    const size_t borderSize = maxLabelSize + EXPECTED_MAX_DIGITS + 6;
+    const std::string border(borderSize, '-');
 
-    auto duration = end - start;
-    double ms = duration * 0.001;
-    std::cout << msg << " duration (ms): " << ms << std::endl;
+    std::cout << border << '\n';
+    for (const auto &pair : data) {
+      std::cout << std::left << std::setw(maxLabelSize) << pair.first << ": "
+                << std::right << std::fixed
+                << std::setw(EXPECTED_MAX_DIGITS + 1) << std::setprecision(3)
+                << pair.second << " ms\n";
+    }
+    std::cout << border << std::endl;
+  }
+
+private:
+  inline void Stop() {
+
+
+    const auto endTimepoint = std::chrono::high_resolution_clock::now();
+    const auto duration = std::chrono::duration<double, std::milli>(
+                              endTimepoint - m_StartTimepoint)
+                              .count();
+
+    if (label.size() > maxLabelSize) {
+      maxLabelSize = label.size();
+    }
+
+    data[label] += duration;
   }
 };

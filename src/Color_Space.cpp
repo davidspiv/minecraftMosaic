@@ -1,4 +1,5 @@
 #include "../include/Color_Space.h"
+#include "../include/Timer.h"
 
 namespace clrspc {
 
@@ -179,6 +180,8 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
 
 
 Rgb Xyz::to_rgb() const {
+  Timer timer("toRgb");
+
   constexpr std::array<std::array<double, 3>, 3> xyzToRGBMatrix = {{
       {3.2404542, -1.5371385, -0.4985314},
       {-0.9692660, 1.8760108, 0.0415560},

@@ -10,8 +10,6 @@
 #include <vector>
 
 int main() {
-
-  Timer timer("Program total");
   Picture srcPic("./srcPics/window.png");
 
   gaussianBlur(srcPic, 20);
@@ -26,4 +24,6 @@ int main() {
   createTexturedPic(bitmap, validTextures);
   createQuantizedPic(bitmap);
   createAtlasPic(validTextures);
+
+  Timer::printData();
 }
