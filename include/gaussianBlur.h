@@ -1,5 +1,4 @@
-#ifndef GUASSIAN_H
-#define GUASSIAN_H
+#pragma once
 
 #include "picture.h"
 #include <iostream>
@@ -9,5 +8,3 @@
 //  results of both operations together to get an equivalent result, saving a
 //  4th inner loop and a bunch of multiplication. Modifies picture object.
 void gaussianBlur(Picture &pic, const size_t strength);
-
-#endif

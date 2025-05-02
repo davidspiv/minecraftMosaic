@@ -1,5 +1,4 @@
-#ifndef TEXTURE_PIC_H
-#define TEXTURE_PIC_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -14,4 +13,3 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths);
 void createTexturedPic(const Bitmap &bitmap,
                        const std::vector<Bitmap> &validTextures);
 
-#endif

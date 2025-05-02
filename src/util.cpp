@@ -46,8 +46,8 @@ clrspc::Lab getAverage(const Bitmap &bitmap, int originX, int originY) {
   double lStar = 0.0;
   double aStar = 0.0;
   double bStar = 0.0;
-  const int maxX = std::min(originX + blockSize, bitmap.width());
-  const int maxY = std::min(originY + blockSize, bitmap.height());
+  const int maxX = std::min(originX + BLOCK_SIZE, bitmap.width());
+  const int maxY = std::min(originY + BLOCK_SIZE, bitmap.height());
   const int numPx = (maxX - originX) * (maxY - originY);
 
   for (int x = originX; x < maxX; ++x) {

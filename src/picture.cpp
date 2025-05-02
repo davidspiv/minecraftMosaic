@@ -118,6 +118,7 @@ Bitmap Picture::getBitmap() const {
 
 
 void Picture::save(const std::string &filename) const {
+  Timer timer("Saved photo");
   unsigned error = lodepng::encode(filename.c_str(), _values, _width, _height);
   if (error != 0)
     throw std::runtime_error(lodepng_error_text(error));

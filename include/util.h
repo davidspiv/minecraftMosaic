@@ -1,14 +1,14 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #include "../include/Color_Space.h"
 #include "../include/picture.h"
 
 #include <array>
+#include <thread>
 #include <type_traits>
 #include <vector>
 
-constexpr int blockSize = 16;
+constexpr int BLOCK_SIZE = 16;
 
 int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB);
 
@@ -27,4 +27,31 @@ buildLookupTable(const Bitmap &bitmap,
 size_t findClosestColorIdx(const clrspc::Lab &targetColor,
                            const std::vector<clrspc::Lab> &quantColors);
 
-#endif
+
+template <typename Func>
+void process2dInParallel(int height, int width, Func func) {
+
+  static const int NUM_THREADS =
+      std::min(static_cast<int>(std::thread::hardware_concurrency()), height);
+  static const int CHUNK_SIZE = height / NUM_THREADS;
+
+  std::vector<std::thread> threads;
+
+  for (int t = 0; t < NUM_THREADS; ++t) {
+    threads.emplace_back([=]() {
+      int startRow = t * CHUNK_SIZE;
+      int endRow = (t + 1) * CHUNK_SIZE;
+
+      for (int j = startRow; j < endRow; ++j) {
+        for (int i = 0; i < width; ++i) {
+          func(i, j);
+        }
+      }
+    });
+  }
+
+  for (auto &thread : threads) {
+    thread.join();
+  }
+}
+

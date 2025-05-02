@@ -1,14 +1,10 @@
-#ifndef MISC_PICS_H
-#define MISC_PICS_H
+#pragma once
 
 #include "../include/Bitmap.h"
-#include "../include/picture.h"
 
 #include <vector>
 
 void createQuantizedPic(const Bitmap &bitmapIn);
-
-void createAtlasPic(const std::vector<Bitmap> &validTextures);
 
 const std::vector<clrspc::Rgb> endesgaPalette = {
     {190, 74, 47},   {215, 118, 67},  {234, 212, 170}, {228, 166, 114},
@@ -62,5 +58,3 @@ const std::vector<clrspc::Rgb> zughyPalette = {
     {223, 246, 245}, {138, 235, 241}, {40, 204, 223},  {57, 120, 168},
     {57, 71, 120},   {57, 49, 75},    {86, 64, 100},   {142, 71, 140},
     {205, 96, 147},  {255, 174, 182}, {244, 180, 27},  {244, 126, 27}};
-
-#endif

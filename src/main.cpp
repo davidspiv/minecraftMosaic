@@ -1,7 +1,8 @@
 #include "../include/Timer.h"
+#include "../include/atlasPic.h"
 #include "../include/gaussianBlur.h"
-#include "../include/miscPics.h"
 #include "../include/picture.h"
+#include "../include/quantizePic.h"
 #include "../include/texturePic.h"
 #include "../include/util.h"
 
@@ -11,7 +12,7 @@
 int main() {
 
   Timer timer("Program total");
-  Picture srcPic("./srcPics/road.png");
+  Picture srcPic("./srcPics/window.png");
 
   gaussianBlur(srcPic, 20);
   Picture minPic = srcPic.bilinearResize(0.0625); // one-sixteenth
@@ -23,6 +24,6 @@ int main() {
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
   createTexturedPic(bitmap, validTextures);
-  //   createQuantizedPic(bitmap);
-  //   createAtlasPic(validTextures);
+  createQuantizedPic(bitmap);
+  createAtlasPic(validTextures);
 }

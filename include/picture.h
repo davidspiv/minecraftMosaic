@@ -1,5 +1,4 @@
-#ifndef PICTURE_H
-#define PICTURE_H
+#pragma once
 
 #include "Bitmap.h"
 #include "lodepng.h"
@@ -35,5 +34,3 @@ private:
   int _width;
   int _height;
 };
-
-#endif

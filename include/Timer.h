@@ -1,6 +1,5 @@
 // https://www.youtube.com/watch?v=YG4jexlSAjc&t=711s
-#ifndef TIMER_H
-#define TIMER_H
+#pragma once
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -33,5 +32,3 @@ public:
     std::cout << msg << " duration (ms): " << ms << std::endl;
   }
 };
-
-#endif

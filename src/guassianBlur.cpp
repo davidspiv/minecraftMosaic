@@ -2,7 +2,9 @@
 #include <cmath>
 #include <vector>
 
+#include "../include/Timer.h"
 #include "../include/picture.h"
+#include "../include/util.h"
 
 int mirrorPixel(int x, int max) {
   if (x < 0)
@@ -36,6 +38,7 @@ std::vector<double> calcGaussianKernelComponent(size_t size) {
 
 
 void gaussianBlur(Picture &pic, const size_t strength) {
+  Timer timer("Gaussian Blur");
   Picture tempPic = pic;
   const size_t width = pic.width();
   const size_t height = pic.height();
@@ -51,42 +54,38 @@ void gaussianBlur(Picture &pic, const size_t strength) {
       calcGaussianKernelComponent(kSize);
 
   //  horizontal first pass writes to temporary picture object
-  for (size_t j = 0; j < height; j++) {
-    for (size_t i = 0; i < width; i++) {
-      double rWeightedAvg = 0;
-      double gWeightedAvg = 0;
-      double bWeightedAvg = 0;
+  process2dInParallel(height, width, [&](int i, int j) {
+    double rWeightedAvg = 0;
+    double gWeightedAvg = 0;
+    double bWeightedAvg = 0;
 
-      for (int k = -kRadius; k <= kRadius; k++) {
-        const double weight = gaussianKernelComponent[k + kRadius];
-        const size_t pixel = mirrorPixel(i + k, width);
+    for (int k = -kRadius; k <= kRadius; k++) {
+      const double weight = gaussianKernelComponent[k + kRadius];
+      const size_t pixel = mirrorPixel(i + k, width);
 
-        rWeightedAvg += weight * pic.red(pixel, j);
-        gWeightedAvg += weight * pic.green(pixel, j);
-        bWeightedAvg += weight * pic.blue(pixel, j);
-      }
-
-      tempPic.set(i, j, rWeightedAvg, gWeightedAvg, bWeightedAvg, 255);
+      rWeightedAvg += weight * pic.red(pixel, j);
+      gWeightedAvg += weight * pic.green(pixel, j);
+      bWeightedAvg += weight * pic.blue(pixel, j);
     }
-  }
+
+    tempPic.set(i, j, rWeightedAvg, gWeightedAvg, bWeightedAvg, 255);
+  });
 
   // vertical second pass writes directly to final picture object
-  for (size_t j = 0; j < height; j++) {
-    for (size_t i = 0; i < width; i++) {
-      double rWeightedAvg = 0;
-      double gWeightedAvg = 0;
-      double bWeightedAvg = 0;
+  process2dInParallel(height, width, [&](int i, int j) {
+    double rWeightedAvg = 0;
+    double gWeightedAvg = 0;
+    double bWeightedAvg = 0;
 
-      for (int k = -kRadius; k <= kRadius; k++) {
-        const double weight = gaussianKernelComponent[k + kRadius];
-        const size_t pixel = mirrorPixel(j + k, height);
+    for (int k = -kRadius; k <= kRadius; k++) {
+      const double weight = gaussianKernelComponent[k + kRadius];
+      const size_t pixel = mirrorPixel(j + k, height);
 
-        rWeightedAvg += weight * tempPic.red(i, pixel);
-        gWeightedAvg += weight * tempPic.green(i, pixel);
-        bWeightedAvg += weight * tempPic.blue(i, pixel);
-      }
-
-      pic.set(i, j, rWeightedAvg, gWeightedAvg, bWeightedAvg, 255);
+      rWeightedAvg += weight * tempPic.red(i, pixel);
+      gWeightedAvg += weight * tempPic.green(i, pixel);
+      bWeightedAvg += weight * tempPic.blue(i, pixel);
     }
-  }
+
+    pic.set(i, j, rWeightedAvg, gWeightedAvg, bWeightedAvg, 255);
+  });
 }
