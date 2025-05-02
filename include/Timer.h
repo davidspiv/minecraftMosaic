@@ -1,4 +1,3 @@
-// https://www.youtube.com/watch?v=YG4jexlSAjc&t=711s
 #pragma once
 #include <chrono>
 #include <iomanip>
@@ -9,8 +8,8 @@
 class Timer {
 private:
   const inline static size_t EXPECTED_MAX_DIGITS = 8;
-  inline static std::unordered_map<std::string, double> data = {};
   inline static size_t maxLabelSize = 0;
+  inline static std::unordered_map<std::string, double> data = {};
 
   std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;
   std::string label;
@@ -38,8 +37,6 @@ public:
 
 private:
   inline void Stop() {
-
-
     const auto endTimepoint = std::chrono::high_resolution_clock::now();
     const auto duration = std::chrono::duration<double, std::milli>(
                               endTimepoint - m_StartTimepoint)

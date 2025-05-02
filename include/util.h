@@ -40,7 +40,7 @@ void process2dInParallel(int height, int width, Func func) {
   for (int t = 0; t < NUM_THREADS; ++t) {
     threads.emplace_back([=]() {
       int startRow = t * CHUNK_SIZE;
-      int endRow = (t + 1) * CHUNK_SIZE;
+      int endRow = (t == NUM_THREADS - 1) ? height : (t + 1) * CHUNK_SIZE;
 
       for (int j = startRow; j < endRow; ++j) {
         for (int i = 0; i < width; ++i) {
@@ -54,4 +54,3 @@ void process2dInParallel(int height, int width, Func func) {
     thread.join();
   }
 }
-

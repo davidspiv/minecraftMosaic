@@ -10,12 +10,11 @@
 #include <vector>
 
 int main() {
-  Picture srcPic("./srcPics/window.png");
+  Picture srcPic("./srcPics/garden.png");
 
   gaussianBlur(srcPic, 20);
   Picture minPic = srcPic.bilinearResize(0.0625); // one-sixteenth
   Bitmap bitmap = minPic.getBitmap();
-
 
   const std::string textureDir = "./blocks";
   const std::vector<std::string> fPaths = getValidPaths(textureDir);

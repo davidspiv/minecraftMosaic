@@ -119,6 +119,8 @@ getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 
 void createTexturedPic(const Bitmap &bitmapIn,
                        const std::vector<Bitmap> &validTextures) {
+  Timer timer("createTexturedPic");
+
   const auto textureAvgColors = getTextureAvgColors(validTextures);
   const auto textureLookupTable = buildLookupTable(bitmapIn, textureAvgColors);
 
