@@ -31,7 +31,10 @@ public:
 private:
   void ensure(int x, int y);
 
+public:
   std::vector<unsigned char> _values;
+
+private:
   int _width;
   int _height;
 };

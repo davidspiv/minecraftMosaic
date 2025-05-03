@@ -123,29 +123,26 @@ void createTexturedPic(const Bitmap &bitmapIn,
   const auto textureAvgColors = getTextureAvgColors(validTextures);
   const auto textureLookupTable = buildLookupTable(bitmapIn, textureAvgColors);
 
-  const int blocksY = textureLookupTable.size();
-  const int blocksX = textureLookupTable[0].size();
-  const int outWidth = blocksX * BLOCK_SIZE;
-  const int outHeight = blocksY * BLOCK_SIZE;
-
+  const int outWidth = textureLookupTable[0].size() * BLOCK_SIZE;
+  const int outHeight = textureLookupTable.size() * BLOCK_SIZE;
   Picture texturedPic(outWidth, outHeight, 0, 0, 0);
 
-  process2dInParallel(blocksY, blocksX, [&](int blockX, int blockY) {
-    const int texIdx = textureLookupTable[blockY][blockX];
-    const Bitmap &texture = validTextures[texIdx];
-    const int baseX = blockX * BLOCK_SIZE;
-    const int baseY = blockY * BLOCK_SIZE;
+  for (size_t blockY = 0; blockY < textureLookupTable.size(); ++blockY) {
+    for (size_t blockX = 0; blockX < textureLookupTable[0].size(); ++blockX) {
+      const int texIdx = textureLookupTable[blockY][blockX];
+      const Bitmap &texture = validTextures[texIdx];
 
-    for (int y = 0; y < BLOCK_SIZE; ++y) {
-      for (int x = 0; x < BLOCK_SIZE; ++x) {
-        const int outX = baseX + x;
-        const int outY = baseY + y;
+      for (int y = 0; y < BLOCK_SIZE; ++y) {
+        for (int x = 0; x < BLOCK_SIZE; ++x) {
+          int outX = blockX * BLOCK_SIZE + x;
+          int outY = blockY * BLOCK_SIZE + y;
 
-        const auto [r, g, b] = texture.get(x, y).get_values();
-        texturedPic.set(outX, outY, r, g, b);
+          auto [r, g, b] = texture.get(x, y).get_values();
+          texturedPic.set(outX, outY, r, g, b);
+        }
       }
     }
-  });
+  }
 
   texturedPic.save("./outputPics/texturedPic.png");
 }
