@@ -51,7 +51,7 @@ clrspc::Lab getAverage(const Bitmap &bitmap, int originX, int originY) {
 
   for (int x = originX; x < maxX; ++x) {
     for (int y = originY; y < maxY; ++y) {
-      const clrspc::Lab &labComponent = bitmap.m_bits[y][x].to_lab();
+      const clrspc::Lab &labComponent = bitmap.get(x, y).to_lab();
 
       const auto [l, a, b] = labComponent.get_values();
 
@@ -96,7 +96,7 @@ buildLookupTable(const Bitmap &bitmap,
 
 
       const int texIdx =
-          findClosestColorIdx(bitmap.m_bits[j][i].to_lab(), quantColors);
+          findClosestColorIdx(bitmap.get(i, j).to_lab(), quantColors);
 
       lookupTable[j][i] = texIdx;
     }
@@ -111,7 +111,7 @@ void saveAsPNG(const Bitmap &bitmap) {
 
   for (int i = 0; i < bitmap.m_width; i++) {
     for (int j = 0; j < bitmap.m_height; j++) {
-      auto [r, g, b] = bitmap.m_bits[j][i].get_values();
+      auto [r, g, b] = bitmap.get(i, j).get_values();
 
       quantPic.set(i, j, r, g, b);
     }

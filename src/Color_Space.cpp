@@ -33,6 +33,7 @@ void Lab::print() const {
             << "\nb: " << m_values[2] << "\n\n";
 }
 
+
 // ========== sRGB Space ==========
 
 Rgb::Rgb(float r, float g, float b)
@@ -50,6 +51,7 @@ Rgb::Rgb(float r, float g, float b)
   warn_if_clamped(g, "G");
   warn_if_clamped(b, "B");
 }
+
 
 Lab Rgb::to_lab() const {
   auto [r, g, b] = m_values;

@@ -80,7 +80,7 @@ Picture::Picture(const Bitmap &bitmap, const int factor) {
 
   for (int j = 0; j < bitmap.m_height; j++) {
     for (int i = 0; i < bitmap.m_width; i++) {
-      auto [r, g, b] = bitmap.m_bits[j][i].get_values();
+      auto [r, g, b] = bitmap.get(i,j).get_values();
 
       // Write the scaled pixels
       for (int y = 0; y < factor; y++) {
@@ -109,7 +109,7 @@ Bitmap Picture::getBitmap() const {
       const int g = _values[i + 1];
       const int b = _values[i + 2];
 
-      bitmap.m_bits[y][x] = clrspc::Rgb(r, g, b);
+      bitmap.set(x, y, clrspc::Rgb(r, g, b));
     }
   }
 

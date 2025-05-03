@@ -47,7 +47,7 @@ void createQuantizedPic(const Bitmap &bitmapIn) {
 
   process2dInParallel(bitmapIn.m_height, bitmapIn.m_width, [&](int i, int j) {
     const int texIdx = lookupTable[j][i];
-    bitmapOut.m_bits[j][i] = colors[texIdx].to_rgb();
+    bitmapOut.set(i, j, colors[texIdx].to_rgb());
   });
 
   Picture quantPic(bitmapOut, BLOCK_SIZE);
