@@ -21,6 +21,7 @@ public:
   Matrix column_wise_scaling(const Matrix &other) const;
   Matrix invert() const;
   std::vector<float> flatten() const;
+  Matrix transpose() const;
 
 private:
   std::vector<std::vector<float>> m_values;
@@ -31,5 +32,6 @@ private:
 std::ostream &operator<<(std::ostream &os, const Matrix &a);
 
 Matrix arr_to_column(std::array<float, 3> arr);
+
 
 Matrix create_to_xyz_transformation_matrix(std::array<float, 3> ref_white);

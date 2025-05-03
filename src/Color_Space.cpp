@@ -142,23 +142,8 @@ void Rgb::print() const {
 Xyz::Xyz(float x, float y, float z) : Color(x, y, z) {}
 
 
-std::array<double, 3>
-multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
-               const std::array<double, 3> &vector) {
-
-  std::array<double, 3> result = {0.0, 0.0, 0.0};
-
-  for (size_t i = 0; i < 3; i++) {
-    for (size_t j = 0; j < 3; j++) {
-      result[i] += matrix[i][j] * vector[j];
-    }
-  }
-
-  return result;
-}
-
-
 // Rgb Xyz::to_rgb() const {
+//   Timer timer("to_rgb");
 //   static const Matrix M_matrix =
 //       create_to_xyz_transformation_matrix(REF_WHITE_D65).invert();
 
@@ -179,9 +164,24 @@ multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
 // }
 
 
-Rgb Xyz::to_rgb() const {
-  Timer timer("toRgb");
+std::array<double, 3>
+multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
+               const std::array<double, 3> &vector) {
 
+  std::array<double, 3> result = {0.0, 0.0, 0.0};
+
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      result[i] += matrix[i][j] * vector[j];
+    }
+  }
+
+  return result;
+}
+
+
+Rgb Xyz::to_rgb() const {
+  Timer timer("to_rgb");
   constexpr std::array<std::array<double, 3>, 3> xyzToRGBMatrix = {{
       {3.2404542, -1.5371385, -0.4985314},
       {-0.9692660, 1.8760108, 0.0415560},

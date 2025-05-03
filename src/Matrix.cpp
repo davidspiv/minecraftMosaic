@@ -1,4 +1,5 @@
 #include "../include/Matrix.h"
+#include "../include/Timer.h"
 
 Matrix::Matrix(int rows, int cols)
     : m_values(
@@ -19,18 +20,32 @@ float &Matrix::operator()(int i, int j) { return m_values[i][j]; }
 const float &Matrix::operator()(int i, int j) const { return m_values[i][j]; }
 
 
+Matrix Matrix::transpose() const {
+  Matrix out(m_cols, m_rows);
+
+  for (size_t i = 0; i < m_rows; i++) {
+    for (size_t j = 0; j < m_cols; j++) {
+      out.m_values[j][i] = m_values[i][j];
+    }
+  }
+
+  return out;
+}
+
+
 Matrix Matrix::multiply(const Matrix &other) const {
   if (m_cols != other.rows()) {
     throw std::runtime_error("Error: mismatched inner dimensions");
   }
 
+  Matrix other_T = other.transpose(); // Make this efficient if possible
   Matrix result(m_rows, other.cols());
 
-  for (size_t i = 0; i < m_rows; i++) {
-    for (size_t k = 0; k < other.cols(); k++) {
+  for (size_t i = 0; i < m_rows; ++i) {
+    for (size_t k = 0; k < other.cols(); ++k) {
       float sum = 0;
-      for (size_t j = 0; j < m_cols; j++) {
-        sum += m_values[i][j] * other(j, k);
+      for (size_t j = 0; j < m_cols; ++j) {
+        sum += m_values[i][j] * other_T.m_values[k][j]; // access is row-wise
       }
       result(i, k) = sum;
     }
