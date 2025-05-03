@@ -10,9 +10,9 @@
 
 int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB) {
 
-  const u_int8_t xD = colorB.r() - colorA.r();
-  const u_int8_t yD = colorB.g() - colorA.g();
-  const u_int8_t zD = colorB.b() - colorA.b();
+  const int xD = static_cast<int>(colorB.r()) - static_cast<int>(colorA.r());
+  const int yD = static_cast<int>(colorB.g()) - static_cast<int>(colorA.g());
+  const int zD = static_cast<int>(colorB.b()) - static_cast<int>(colorA.b());
   return xD * xD + yD * yD + zD * zD;
 }
 
