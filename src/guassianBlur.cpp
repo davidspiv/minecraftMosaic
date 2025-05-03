@@ -37,11 +37,11 @@ std::vector<double> calcGaussianKernelComponent(size_t size) {
 }
 
 
-void gaussianBlur(Picture &pic, const size_t strength) {
+void Picture::gaussianBlur(const size_t strength) {
   Timer timer("Gaussian Blur");
-  Picture tempPic = pic;
-  const size_t width = pic.width();
-  const size_t height = pic.height();
+  Picture tempPic = *this;
+  const size_t width = _width;
+  const size_t height = _height;
 
   // kSize will be rounded down to an odd number to keep target pixel centered
   const size_t kSize = strength % 2 ? strength : strength - 1;
@@ -63,9 +63,9 @@ void gaussianBlur(Picture &pic, const size_t strength) {
       const double weight = gaussianKernelComponent[k + kRadius];
       const size_t pixel = mirrorPixel(i + k, width);
 
-      rWeightedAvg += weight * pic.red(pixel, j);
-      gWeightedAvg += weight * pic.green(pixel, j);
-      bWeightedAvg += weight * pic.blue(pixel, j);
+      rWeightedAvg += weight * this->red(pixel, j);
+      gWeightedAvg += weight * this->green(pixel, j);
+      bWeightedAvg += weight * this->blue(pixel, j);
     }
 
     tempPic.set(i, j, rWeightedAvg, gWeightedAvg, bWeightedAvg, 255);
@@ -86,6 +86,6 @@ void gaussianBlur(Picture &pic, const size_t strength) {
       bWeightedAvg += weight * tempPic.blue(i, pixel);
     }
 
-    pic.set(i, j, rWeightedAvg, gWeightedAvg, bWeightedAvg, 255);
+    this->set(i, j, rWeightedAvg, gWeightedAvg, bWeightedAvg, 255);
   });
 }

@@ -26,6 +26,7 @@ public:
   void save(const std::string &filename) const;
   Picture bilinearResize(float factor) const;
   Bitmap getBitmap() const;
+  void gaussianBlur(const size_t strength);
 
 private:
   void ensure(int x, int y);
