@@ -146,5 +146,5 @@ void createTexturedPic(const Bitmap &bitmapIn,
     }
   });
 
-  texturedPic.save("./outputPics/texturedPic.png");
+    texturedPic.save("./outputPics/texturedPic.png");
 }

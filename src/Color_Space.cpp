@@ -315,8 +315,6 @@ Xyz::Xyz(float x, float y, float z) : Color(x, y, z) {}
 
 
 Rgb Xyz::to_rgb() const {
-  Timer timer("to_rgb");
-
   const auto [x, y, z] = m_values;
 
   // matrix multiplication using XYZ-to-sRGB transformation matrix

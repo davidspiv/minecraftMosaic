@@ -10,10 +10,10 @@
 #include <vector>
 
 int main() {
-  //   Timer::global();
+  Timer::global();
   Picture srcPic("./srcPics/garden.png");
 
-  gaussianBlur(srcPic, 20);
+  gaussianBlur(srcPic, 15);
   Picture minPic = srcPic.bilinearResize(0.0625); // one-sixteenth
   Bitmap bitmap = minPic.getBitmap();
 
