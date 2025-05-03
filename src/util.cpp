@@ -8,12 +8,11 @@
 #include <cmath>
 
 
-int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB) {
-
-  const int xD = static_cast<int>(colorB.r()) - static_cast<int>(colorA.r());
-  const int yD = static_cast<int>(colorB.g()) - static_cast<int>(colorA.g());
-  const int zD = static_cast<int>(colorB.b()) - static_cast<int>(colorA.b());
-  return xD * xD + yD * yD + zD * zD;
+int distSquared(const clrspc::Rgb &a, const clrspc::Rgb &b) {
+  int dr = int(b.r()) - int(a.r());
+  int dg = int(b.g()) - int(a.g());
+  int db = int(b.b()) - int(a.b());
+  return dr * dr + dg * dg + db * db;
 }
 
 
