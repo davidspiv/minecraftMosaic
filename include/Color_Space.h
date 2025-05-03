@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "Matrix.h"
-
 #define _USE_MATH_DEFINES // for VS
 
 namespace clrspc {
@@ -25,10 +23,6 @@ public:
   Color(channel_t x, channel_t y, channel_t z) { m_values = {x, y, z}; }
 
   [[nodiscard]] std::array<channel_t, 3> get_values() const { return m_values; }
-  [[nodiscard]] Matrix to_column() const {
-    return Matrix({{m_values[0]}, {m_values[1]}, {m_values[2]}});
-  };
-
 
   virtual void print() const {
     std::cout << "[GEN]" << "\nC1: " << m_values[0] << "\nC2: " << m_values[1]

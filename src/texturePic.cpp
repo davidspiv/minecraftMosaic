@@ -90,8 +90,7 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
         const int g = texture.green(k, j);
         const int b = texture.blue(k, j);
 
-        clrspc::Rgb rgb(r, g, b);
-        bitmap.set(k, j, rgb.to_lab());
+        bitmap.m_bits[j][k] = clrspc::Rgb(r, g, b);
       }
     }
 
@@ -140,11 +139,11 @@ void createTexturedPic(const Bitmap &bitmapIn,
         const int outX = blockX * BLOCK_SIZE + x;
         const int outY = blockY * BLOCK_SIZE + y;
 
-        const auto [r, g, b] = texture.get(x, y).to_rgb().get_values();
+        const auto [r, g, b] = texture.m_bits[y][x].get_values();
         texturedPic.set(outX, outY, r, g, b);
       }
     }
   });
 
-    texturedPic.save("./outputPics/texturedPic.png");
+  texturedPic.save("./outputPics/texturedPic.png");
 }

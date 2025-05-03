@@ -20,7 +20,7 @@ void createAtlasPic(const std::vector<Bitmap> &validTextures) {
     for (size_t j = 0; j < BLOCK_SIZE; j++) {
       for (size_t k = 0; k < BLOCK_SIZE; k++) {
 
-        bitmapOut.set(xOffset + k, yOffset + j, bitmap.get(k, j));
+        bitmapOut.m_bits[yOffset + j][xOffset + k] = bitmap.m_bits[j][k];
       }
     }
   }

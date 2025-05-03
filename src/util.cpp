@@ -10,9 +10,9 @@
 
 int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB) {
 
-  const int xD = colorB.r() - colorA.r();
-  const int yD = colorB.g() - colorA.g();
-  const int zD = colorB.b() - colorA.b();
+  const u_int8_t xD = colorB.r() - colorA.r();
+  const u_int8_t yD = colorB.g() - colorA.g();
+  const u_int8_t zD = colorB.b() - colorA.b();
   return xD * xD + yD * yD + zD * zD;
 }
 
@@ -46,15 +46,15 @@ clrspc::Lab getAverage(const Bitmap &bitmap, int originX, int originY) {
   double lStar = 0.0;
   double aStar = 0.0;
   double bStar = 0.0;
-  const int maxX = std::min(originX + BLOCK_SIZE, bitmap.width());
-  const int maxY = std::min(originY + BLOCK_SIZE, bitmap.height());
+  const int maxX = std::min(originX + BLOCK_SIZE, bitmap.m_width);
+  const int maxY = std::min(originY + BLOCK_SIZE, bitmap.m_height);
   const int numPx = (maxX - originX) * (maxY - originY);
 
   for (int x = originX; x < maxX; ++x) {
     for (int y = originY; y < maxY; ++y) {
-      const clrspc::Lab &cieLabComponent = bitmap.get(x, y);
+      const clrspc::Lab &labComponent = bitmap.m_bits[y][x].to_lab();
 
-      const auto [l, a, b] = cieLabComponent.get_values();
+      const auto [l, a, b] = labComponent.get_values();
 
       lStar += l;
       aStar += a;
@@ -89,14 +89,15 @@ size_t findClosestColorIdx(const clrspc::Lab &targetColor,
 std::vector<std::vector<int>>
 buildLookupTable(const Bitmap &bitmap,
                  const std::vector<clrspc::Lab> &quantColors) {
-  std::vector<std::vector<int>> lookupTable(bitmap.height(),
-                                            std::vector<int>(bitmap.width()));
+  std::vector<std::vector<int>> lookupTable(bitmap.m_height,
+                                            std::vector<int>(bitmap.m_width));
 
-  for (int i = 0; i < bitmap.width(); i++) {
-    for (int j = 0; j < bitmap.height(); j++) {
+  for (int i = 0; i < bitmap.m_width; i++) {
+    for (int j = 0; j < bitmap.m_height; j++) {
 
 
-      const int texIdx = findClosestColorIdx(bitmap.get(i, j), quantColors);
+      const int texIdx =
+          findClosestColorIdx(bitmap.m_bits[j][i].to_lab(), quantColors);
 
       lookupTable[j][i] = texIdx;
     }
@@ -107,11 +108,11 @@ buildLookupTable(const Bitmap &bitmap,
 
 
 void saveAsPNG(const Bitmap &bitmap) {
-  Picture quantPic(bitmap.width(), bitmap.height(), 0, 0, 0);
+  Picture quantPic(bitmap.m_width, bitmap.m_height, 0, 0, 0);
 
-  for (int i = 0; i < bitmap.width(); i++) {
-    for (int j = 0; j < bitmap.height(); j++) {
-      auto [r, g, b] = bitmap.get(i, j).to_rgb().get_values();
+  for (int i = 0; i < bitmap.m_width; i++) {
+    for (int j = 0; j < bitmap.m_height; j++) {
+      auto [r, g, b] = bitmap.m_bits[j][i].get_values();
 
       quantPic.set(i, j, r, g, b);
     }

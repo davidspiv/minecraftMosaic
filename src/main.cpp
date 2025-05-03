@@ -22,8 +22,8 @@ int main() {
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
   createTexturedPic(bitmap, validTextures);
-  //   createQuantizedPic(bitmap);
-  //   createAtlasPic(validTextures);
+  createQuantizedPic(bitmap);
+  createAtlasPic(validTextures);
 
   Timer::printData();
 }

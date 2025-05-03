@@ -13,9 +13,9 @@
 std::vector<clrspc::Lab> getQuantizedColors() {
   std::vector<clrspc::Lab> colors;
 
-  for (int i = 0; i <= 255; i += 60) {
-    for (int j = 0; j <= 255; j += 60) {
-      for (int k = 0; k <= 255; k += 60) {
+  for (int i = 0; i <= 255; i += 30) {
+    for (int j = 0; j <= 255; j += 30) {
+      for (int k = 0; k <= 255; k += 30) {
         const clrspc::Rgb rgb(i, j, k);
         colors.push_back(rgb.to_lab());
       }
@@ -38,16 +38,16 @@ std::vector<clrspc::Lab> getPalletColors() {
 
 
 void createQuantizedPic(const Bitmap &bitmapIn) {
-  //   const std::vector<clrspc::Lab> colors = getPalletColors();
-  const std::vector<clrspc::Lab> colors = getQuantizedColors();
+  const std::vector<clrspc::Lab> colors = getPalletColors();
+  //   const std::vector<clrspc::Lab> colors = getQuantizedColors();
   const std::vector<std::vector<int>> lookupTable =
       buildLookupTable(bitmapIn, colors);
 
-  Bitmap bitmapOut(bitmapIn.width(), bitmapIn.height());
+  Bitmap bitmapOut(bitmapIn.m_width, bitmapIn.m_height);
 
-  process2dInParallel(bitmapIn.height(), bitmapIn.width(), [&](int i, int j) {
+  process2dInParallel(bitmapIn.m_height, bitmapIn.m_width, [&](int i, int j) {
     const int texIdx = lookupTable[j][i];
-    bitmapOut.set(i, j, colors[texIdx]);
+    bitmapOut.m_bits[j][i] = colors[texIdx].to_rgb();
   });
 
   Picture quantPic(bitmapOut, BLOCK_SIZE);

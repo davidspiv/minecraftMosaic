@@ -33,13 +33,16 @@ public:
     const std::string border(borderSize, '-');
 
     std::cout << border << '\n';
+
+    std::cout << "Global minus save: "
+              << globalDuration - data.at("Saved photo") << '\n';
     for (const auto &pair : data) {
 
       std::cout << std::left << std::setw(maxLabelSize) << pair.first << ": "
-                << std::right << std::fixed
-                << std::setw(EXPECTED_MAX_DIGITS + 1) << std::setprecision(3)
-                << pair.second << " ms | " << std::setprecision(1)
-                << (pair.second / globalDuration) * 100 << "%\n";
+                << std::right << std::fixed << std::setw(EXPECTED_MAX_DIGITS)
+                << std::setprecision(3) << pair.second << " ms | "
+                << std::setprecision(1) << (pair.second / globalDuration) * 100
+                << "%\n";
     }
     std::cout << border << std::endl;
   }

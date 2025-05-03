@@ -72,15 +72,15 @@ Picture::Picture(const std::vector<std::vector<int>> &grays) {
 Picture::Picture(const Bitmap &bitmap, const int factor) {
   const int channels = 4;
 
-  _width = bitmap.width() * factor;
-  _height = bitmap.height() * factor;
+  _width = bitmap.m_width * factor;
+  _height = bitmap.m_height * factor;
 
   // Allocate enough space for the expanded image
   _values.resize(_width * _height * channels);
 
-  for (int j = 0; j < bitmap.height(); j++) {
-    for (int i = 0; i < bitmap.width(); i++) {
-      auto [r, g, b] = bitmap.get(i, j).to_rgb().get_values();
+  for (int j = 0; j < bitmap.m_height; j++) {
+    for (int i = 0; i < bitmap.m_width; i++) {
+      auto [r, g, b] = bitmap.m_bits[j][i].get_values();
 
       // Write the scaled pixels
       for (int y = 0; y < factor; y++) {
@@ -109,7 +109,7 @@ Bitmap Picture::getBitmap() const {
       const int g = _values[i + 1];
       const int b = _values[i + 2];
 
-      bitmap.set(x, y, clrspc::Rgb(r, g, b).to_lab());
+      bitmap.m_bits[y][x] = clrspc::Rgb(r, g, b);
     }
   }
 
