@@ -11,7 +11,7 @@
 
 int main() {
   Timer::global();
-  Picture srcPic("./srcPics/tree.png");
+  Picture srcPic("./srcPics/dock.png");
 
   srcPic.gaussianBlur(15);
   Picture minPic = srcPic.bilinearResize(ONE_SIXTEENTH);
