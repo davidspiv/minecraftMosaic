@@ -22,7 +22,7 @@ public:
       std::cout << "x: " << x << "y: " << y << std::endl;
       throw std::out_of_range("Out of range");
     }
-    const clrspc::Rgb rgb = bits[y][x].to_xyz().to_rgb();
+    const clrspc::Rgb rgb = bits[y][x].to_rgb();
 
     return rgb;
   }

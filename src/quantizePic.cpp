@@ -17,7 +17,7 @@ std::vector<clrspc::Lab> getQuantizedColors() {
     for (int j = 0; j <= 255; j += 60) {
       for (int k = 0; k <= 255; k += 60) {
         const clrspc::Rgb rgb(i, j, k);
-        colors.push_back(rgb.to_xyz().to_lab());
+        colors.push_back(rgb.to_lab());
       }
     }
   }
@@ -31,7 +31,7 @@ std::vector<clrspc::Lab> getPalletColors() {
   std::vector<clrspc::Lab> colors;
   colors.reserve(palette.size());
   std::transform(palette.begin(), palette.end(), std::back_inserter(colors),
-                 [](clrspc::Rgb c) { return c.to_xyz().to_lab(); });
+                 [](clrspc::Rgb c) { return c.to_lab(); });
 
   return colors;
 }

@@ -111,7 +111,7 @@ void saveAsPNG(const Bitmap &bitmap) {
 
   for (int i = 0; i < bitmap.width(); i++) {
     for (int j = 0; j < bitmap.height(); j++) {
-      auto [r, g, b] = bitmap.get(i, j).to_xyz().to_rgb().get_values();
+      auto [r, g, b] = bitmap.get(i, j).to_rgb().get_values();
 
       quantPic.set(i, j, r, g, b);
     }

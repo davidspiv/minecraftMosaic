@@ -13,24 +13,18 @@
 
 namespace clrspc {
 
-static constexpr float epsilon = 216.0f / 24389.0f;
-static constexpr float kappa = 24389.0f / 27.0f;
-const std::array<float, 3> REF_WHITE_D65 = {0.95047f, 1.00000f, 1.08883f};
-
 // forward declarations
 class Lab;
-class Lch_Ab;
 class Rgb;
-class Xyz;
 
-template <typename T> class Color {
+template <typename channel_t> class Color {
 protected:
-  std::array<T, 3> m_values;
+  std::array<channel_t, 3> m_values;
 
 public:
-  Color(T x, T y, T z) { m_values = {x, y, z}; }
+  Color(channel_t x, channel_t y, channel_t z) { m_values = {x, y, z}; }
 
-  [[nodiscard]] std::array<T, 3> get_values() const { return m_values; }
+  [[nodiscard]] std::array<channel_t, 3> get_values() const { return m_values; }
   [[nodiscard]] Matrix to_column() const {
     return Matrix({{m_values[0]}, {m_values[1]}, {m_values[2]}});
   };
@@ -64,12 +58,7 @@ public:
   inline float a() const { return m_values[1]; }
   inline float b() const { return m_values[2]; }
 
-  Xyz to_xyz() const;
-
-
-  Lch_Ab to_lch_ab() const;
-
-  float diff_cie_2000(const Lab &other) const;
+  [[nodiscard]] Rgb to_rgb() const;
 
   void print() const override;
 };
@@ -84,25 +73,9 @@ public:
   inline float g() const { return m_values[1]; }
   inline float b() const { return m_values[2]; }
 
-  [[nodiscard]] Xyz to_xyz() const;
-
-  void print() const override;
-};
-
-
-class Xyz : public Color<float> {
-public:
-  Xyz(float X, float Y, float Z);
-
-  // accessors
-  inline float x() const { return m_values[0]; }
-  inline float y() const { return m_values[1]; }
-  inline float z() const { return m_values[2]; }
-
-  [[nodiscard]] Rgb to_rgb() const;
   [[nodiscard]] Lab to_lab() const;
 
-  void print() const;
+  void print() const override;
 };
 
 
