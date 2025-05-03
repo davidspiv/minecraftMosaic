@@ -9,6 +9,7 @@
 #include <vector>
 
 constexpr int BLOCK_SIZE = 16;
+constexpr float ONE_SIXTEENTH = 0.0625f;
 
 int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB);
 

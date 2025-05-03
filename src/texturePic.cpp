@@ -133,11 +133,13 @@ void createTexturedPic(const Bitmap &bitmapIn,
   process2dInParallel(blocksY, blocksX, [&](int blockX, int blockY) {
     const int texIdx = textureLookupTable[blockY][blockX];
     const Bitmap &texture = validTextures[texIdx];
+    const int baseX = blockX * BLOCK_SIZE;
+    const int baseY = blockY * BLOCK_SIZE;
 
     for (int y = 0; y < BLOCK_SIZE; ++y) {
       for (int x = 0; x < BLOCK_SIZE; ++x) {
-        const int outX = blockX * BLOCK_SIZE + x;
-        const int outY = blockY * BLOCK_SIZE + y;
+        const int outX = baseX + x;
+        const int outY = baseY + y;
 
         const auto [r, g, b] = texture.get(x, y).get_values();
         texturedPic.set(outX, outY, r, g, b);

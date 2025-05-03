@@ -48,27 +48,6 @@ Picture::Picture(const std::vector<std::vector<int>> &grays) {
 }
 
 
-// Picture::Picture(const Bitmap &bitmap) {
-//   _width = bitmap.width();
-//   _height = bitmap.height();
-
-//   _values.resize(_width * _height * 4);
-
-//   unsigned char *ptr = _values.data();
-
-//   for (int j = 0; j < _height; j++) {
-//     for (int i = 0; i < _width; i++) {
-//       auto [r, g, b] = clrspc::Rgb(bitmap.get(i, j));
-
-//       *ptr++ = r;
-//       *ptr++ = g;
-//       *ptr++ = b;
-//       *ptr++ = 255;
-//     }
-//   }
-// }
-
-
 Picture::Picture(const Bitmap &bitmap, const int factor) {
   const int channels = 4;
 
@@ -80,7 +59,7 @@ Picture::Picture(const Bitmap &bitmap, const int factor) {
 
   for (int j = 0; j < bitmap.m_height; j++) {
     for (int i = 0; i < bitmap.m_width; i++) {
-      auto [r, g, b] = bitmap.get(i,j).get_values();
+      auto [r, g, b] = bitmap.get(i, j).get_values();
 
       // Write the scaled pixels
       for (int y = 0; y < factor; y++) {

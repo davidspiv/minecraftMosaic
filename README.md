@@ -11,4 +11,13 @@ Then, for each 16x16 block of photo, I computed the average color, and found the
 **Future Changes**
 Change to a different color space to get more accurate results, and audit the minecraft texture map more to exclude things like command blocks. And to make it several orders of magnitude faster, obviously. Possibly make it into a map art schematic generator...
 
-For those interested, here's a relevant video to color theory, taught using Minecraft: [How to average color](<https://www.youtube.com/watch?v=e0HM_vfSuDw&t=46s>). 
+For those interested, here's a relevant video to color theory, taught using Minecraft: [How to average color](<https://www.youtube.com/watch?v=e0HM_vfSuDw&t=46s>).
+
+- First I take an image and hit it with a a little:
+[Gaussian Blur](<https://en.wikipedia.org/wiki/Gaussian_blur>)
+
+- Then, I shrink it down with a little [Bilinear Interpolation](<https://en.wikipedia.org/wiki/Bilinear_interpolation>).
+
+- Then, I convert all the color data to [OkLab](<https://bottosson.github.io/posts/oklab/>) colors.
+
+Finally, I take each pixel color and match it the closest averaged block, building a lookup table. I  use the lookup table to make the image at the end.

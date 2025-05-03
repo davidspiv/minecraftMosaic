@@ -11,10 +11,10 @@
 
 int main() {
   Timer::global();
-  Picture srcPic("./srcPics/garden.png");
+  Picture srcPic("./srcPics/tree.png");
 
   srcPic.gaussianBlur(15);
-  Picture minPic = srcPic.bilinearResize(0.0625); // one-sixteenth
+  Picture minPic = srcPic.bilinearResize(ONE_SIXTEENTH);
   Bitmap bitmap = minPic.getBitmap();
 
   const std::string textureDir = "./blocks";
@@ -22,8 +22,8 @@ int main() {
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
   createTexturedPic(bitmap, validTextures);
-  createQuantizedPic(bitmap);
-  createAtlasPic(validTextures);
+  //   createQuantizedPic(bitmap);
+  //   createAtlasPic(validTextures);
 
   Timer::printData();
 }

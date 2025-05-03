@@ -12,7 +12,8 @@ public:
   void set(int x, int y, const clrspc::Rgb &rgb) {
     m_bits[y * m_width + x] = rgb;
   }
-  clrspc::Rgb get(int x, int y) const { return m_bits[y * m_width + x]; }
+
+  const clrspc::Rgb &get(int x, int y) const { return m_bits[y * m_width + x]; }
 
   int m_width;
   int m_height;
