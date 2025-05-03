@@ -23,8 +23,9 @@ public:
   std::vector<float> flatten() const;
   Matrix transpose() const;
 
-private:
   std::vector<std::vector<float>> m_values;
+
+private:
   size_t m_rows;
   size_t m_cols;
 };

@@ -13,9 +13,9 @@
 std::vector<clrspc::Lab> getQuantizedColors() {
   std::vector<clrspc::Lab> colors;
 
-  for (int i = 0; i <= 255; i += 15) {
-    for (int j = 0; j <= 255; j += 15) {
-      for (int k = 0; k <= 255; k += 15) {
+  for (int i = 0; i <= 255; i += 60) {
+    for (int j = 0; j <= 255; j += 60) {
+      for (int k = 0; k <= 255; k += 60) {
         const clrspc::Rgb rgb(i, j, k);
         colors.push_back(rgb.to_xyz().to_lab());
       }
@@ -38,7 +38,8 @@ std::vector<clrspc::Lab> getPalletColors() {
 
 
 void createQuantizedPic(const Bitmap &bitmapIn) {
-  const std::vector<clrspc::Lab> colors = getPalletColors();
+  //   const std::vector<clrspc::Lab> colors = getPalletColors();
+  const std::vector<clrspc::Lab> colors = getQuantizedColors();
   const std::vector<std::vector<int>> lookupTable =
       buildLookupTable(bitmapIn, colors);
 

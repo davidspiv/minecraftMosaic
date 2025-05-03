@@ -1,7 +1,7 @@
 #include "../include/util.h"
 #include "../include/Color_Space.h"
-#include "../include/picture.h"
 #include "../include/Timer.h"
+#include "../include/picture.h"
 
 #include <algorithm>
 #include <array>
@@ -73,7 +73,8 @@ size_t findClosestColorIdx(const clrspc::Lab &targetColor,
   double minDist = std::numeric_limits<double>::max();
 
   for (size_t i = 0; i < quantColors.size(); ++i) {
-    const double curDist = distSquared(targetColor, quantColors[i]);
+    // const double curDist = distSquared(targetColor, quantColors[i]); // fast
+    const double curDist = targetColor.diff_cie_2000(quantColors[i]); // slow
 
     if (curDist < minDist) {
       minDist = curDist;

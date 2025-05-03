@@ -76,6 +76,8 @@ public:
    */
   Lch_Ab to_lch_ab() const;
 
+  float diff_cie_2000(const Lab &other) const;
+
   /**
    * @brief Prints Lab components to the console.
    */
@@ -140,6 +142,11 @@ public:
    * @param Z quasi-equal to the "blue" monochromatic primary (Z)
    */
   Xyz(float X, float Y, float Z);
+
+  // accessors
+  inline float x() const { return m_values[0]; }
+  inline float y() const { return m_values[1]; }
+  inline float z() const { return m_values[2]; }
 
   /**
    * @brief Converts XYZ to RGB.
@@ -208,4 +215,4 @@ std::array<float, 3> inline to_polar_color_space(
 }
 
 
-}
+} // namespace clrspc

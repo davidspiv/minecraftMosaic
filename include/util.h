@@ -12,8 +12,6 @@ constexpr int BLOCK_SIZE = 16;
 
 int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB);
 
-double distSquared(const clrspc::Lab &colorA, const clrspc::Lab &colorB);
-
 std::array<double, 3>
 multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
                const std::array<double, 3> &vector);
@@ -26,6 +24,11 @@ buildLookupTable(const Bitmap &bitmap,
 
 size_t findClosestColorIdx(const clrspc::Lab &targetColor,
                            const std::vector<clrspc::Lab> &quantColors);
+
+
+template <typename T> auto euclidean_norm(const T xMag, const T yMag) {
+  return std::sqrt(xMag * xMag + yMag * yMag);
+}
 
 
 template <typename Func>
