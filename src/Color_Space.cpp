@@ -42,22 +42,18 @@ Xyz Lab::to_xyz() const {
   const float fY = fX + (m_values[1] / 500.0f);
   const float fZ = fX - (m_values[2] / 200.0f);
 
-  const float rX = (std::pow(fY, 3.0f) > epsilon)
-                       ? std::pow(fY, 3)
-                       : (116.0f * fY - 16.0f) / kappa;
+  const float fY3 = fY * fY * fY;
+  const float fX3 = fX * fX * fX;
+  const float fZ3 = fZ * fZ * fZ;
+
+  const float rX = (fY3 > epsilon) ? fY3 : (116.0f * fY - 16.0f) / kappa;
   const float rY =
-      (m_values[0] > (kappa * epsilon)) ? std::pow(fX, 3) : m_values[0] / kappa;
-  const float rZ = (std::pow(fZ, 3.0f) > epsilon)
-                       ? std::pow(fZ, 3)
-                       : (116.0f * fZ - 16.0f) / kappa;
+      (m_values[0] > (kappa * epsilon)) ? fX3 : m_values[0] / kappa;
+  const float rZ = (fZ3 > epsilon) ? fZ3 : (116.0f * fZ - 16.0f) / kappa;
 
   auto [ref_x, ref_y, ref_z] = REF_WHITE_D65;
 
-  const float x = rX * ref_x;
-  const float y = rY * ref_y;
-  const float z = rZ * ref_z;
-
-  return Xyz(x, y, z);
+  return Xyz(rX * ref_x, rY * ref_y, rZ * ref_z);
 }
 
 
@@ -142,59 +138,29 @@ void Rgb::print() const {
 Xyz::Xyz(float x, float y, float z) : Color(x, y, z) {}
 
 
-// Rgb Xyz::to_rgb() const {
-//   Timer timer("to_rgb");
-//   static const Matrix M_matrix =
-//       create_to_xyz_transformation_matrix(REF_WHITE_D65).invert();
-
-//   const Matrix color_as_column = to_column();
-
-//   Matrix xyz_as_matrix = M_matrix.multiply(color_as_column);
-
-//   // Absolute colorimetric
-//   const float r_corr = apply_gamma(xyz_as_matrix(0, 0));
-//   const float g_corr = apply_gamma(xyz_as_matrix(1, 0));
-//   const float b_corr = apply_gamma(xyz_as_matrix(2, 0));
-
-//   const float r_norm = std::clamp(r_corr, 0.0f, 1.0f) * 255.0f;
-//   const float g_norm = std::clamp(g_corr, 0.0f, 1.0f) * 255.0f;
-//   const float b_norm = std::clamp(b_corr, 0.0f, 1.0f) * 255.0f;
-
-//   return Rgb(r_norm, g_norm, b_norm);
-// }
-
-
-std::array<double, 3>
-multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
-               const std::array<double, 3> &vector) {
-
-  std::array<double, 3> result = {0.0, 0.0, 0.0};
-
-  for (size_t i = 0; i < 3; i++) {
-    for (size_t j = 0; j < 3; j++) {
-      result[i] += matrix[i][j] * vector[j];
-    }
-  }
-
-  return result;
+std::array<float, 3>
+multiplyMatrixInline(const std::array<std::array<float, 3>, 3> &m,
+                     const std::array<float, 3> &v) {
+  return {
+      m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],
+      m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
+      m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2],
+  };
 }
 
 
 Rgb Xyz::to_rgb() const {
-  Timer timer("to_rgb");
-  constexpr std::array<std::array<double, 3>, 3> xyzToRGBMatrix = {{
-      {3.2404542, -1.5371385, -0.4985314},
-      {-0.9692660, 1.8760108, 0.0415560},
-      {0.0556434, -0.2040259, 1.0572252},
-  }};
+  const float x = m_values[0];
+  const float y = m_values[1];
+  const float z = m_values[2];
 
-  std::array<double, 3> linRGB =
-      multiplyMatrix(xyzToRGBMatrix, {m_values[0], m_values[1], m_values[2]});
+  const float r_lin = 3.2404542f * x - 1.5371385f * y - 0.4985314f * z;
+  const float g_lin = -0.9692660f * x + 1.8760108f * y + 0.0415560f * z;
+  const float b_lin = 0.0556434f * x - 0.2040259f * y + 1.0572252f * z;
 
-  // Absolute colorimetric
-  const float r_corr = apply_gamma(linRGB[0]);
-  const float g_corr = apply_gamma(linRGB[1]);
-  const float b_corr = apply_gamma(linRGB[2]);
+  const float r_corr = apply_gamma(r_lin);
+  const float g_corr = apply_gamma(g_lin);
+  const float b_corr = apply_gamma(b_lin);
 
   const float r_norm = std::clamp(r_corr, 0.0f, 1.0f) * 255.0f;
   const float g_norm = std::clamp(g_corr, 0.0f, 1.0f) * 255.0f;
