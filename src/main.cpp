@@ -6,11 +6,12 @@
 #include "../include/texturePic.h"
 #include "../include/util.h"
 
+#include <fstream>
 #include <string>
 #include <vector>
 
 int main() {
-  Timer::global();
+  //   Timer::global();
   Picture srcPic("./srcPics/tree.png");
 
   srcPic.gaussianBlur(15);
@@ -18,12 +19,19 @@ int main() {
   Bitmap bitmap = minPic.getBitmap();
 
   const std::string textureDir = "./blocks";
+
+
   const std::vector<std::string> fPaths = getValidPaths(textureDir);
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
+  const auto textureAvgColors = getTextureAvgColors(validTextures);
 
-  createTexturedPic(bitmap, validTextures);
-  createQuantizedPic(bitmap);
-  createAtlasPic(validTextures);
 
-  Timer::printData();
+  //   const auto textureLookupTable = buildLookupTable(bitmap,
+  //   textureAvgColors);
+
+  //   createTexturedPic(textureLookupTable, validTextures);
+  //   //   createQuantizedPic(bitmap);
+  //   //   createAtlasPic(validTextures);
+
+  //   Timer::printData();
 }

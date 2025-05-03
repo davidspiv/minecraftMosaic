@@ -1,5 +1,6 @@
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -9,7 +10,7 @@
 #include "../include/picture.h"
 #include "../include/util.h"
 
-std::vector<std::string> getValidPaths(std::string dir) {
+std::vector<std::string> getValidPaths(const std::string &dir) {
   std::vector<std::string> fPaths;
 
   for (const auto &f : std::filesystem::directory_iterator(dir)) {
@@ -25,14 +26,17 @@ std::vector<std::string> getValidPaths(std::string dir) {
 }
 
 
-std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
+std::vector<Bitmap> getValidTextures(const std::vector<std::string> &fPaths) {
   const size_t numTiles = fPaths.size();
   std::vector<Bitmap> validTextures;
+
+  std::ofstream ofs("test.dat");
 
   for (size_t i = 0; i < numTiles; i++) {
 
     Picture texture(fPaths[i]);
 
+    // TRANSPARENT PIXELS CHECK
     bool isTransparent = false;
 
     int rAvg = 0;
@@ -57,7 +61,7 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
     if (isTransparent)
       continue;
 
-    const int pixelCount = BLOCK_SIZE * BLOCK_SIZE;
+    constexpr float pixelCount = BLOCK_SIZE * BLOCK_SIZE;
 
     rAvg /= pixelCount;
     gAvg /= pixelCount;
@@ -65,8 +69,9 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
 
     const clrspc::Rgb colorAvg(rAvg, gAvg, bAvg);
 
+    // VARIANCE WITHIN TEXTURE CHECK
+    const int diffMax = 400'000;
     int diff = 0;
-    int diffMax = 400'000;
 
     for (size_t j = 0; j < BLOCK_SIZE && diff < diffMax; j++) {
       for (size_t k = 0; k < BLOCK_SIZE; k++) {
@@ -80,9 +85,13 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
       }
     }
 
-
     if (diff > diffMax)
       continue;
+
+    // TEXTURE IS VALID
+
+    const auto [l, a, b] = colorAvg.to_lab().get_values();
+    ofs << fPaths[i] << ", l: " << l << " a: " << a << " b: " << b << '\n';
 
     Bitmap bitmap(BLOCK_SIZE, BLOCK_SIZE);
     for (size_t j = 0; j < BLOCK_SIZE; j++) {
@@ -99,6 +108,7 @@ std::vector<Bitmap> getValidTextures(std::vector<std::string> fPaths) {
     validTextures.push_back(bitmap);
   }
 
+  ofs.close();
   return validTextures;
 }
 
@@ -117,10 +127,8 @@ getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 }
 
 
-void createTexturedPic(const Bitmap &bitmapIn,
+void createTexturedPic(const std::vector<std::vector<int>> &textureLookupTable,
                        const std::vector<Bitmap> &validTextures) {
-  const auto textureAvgColors = getTextureAvgColors(validTextures);
-  const auto textureLookupTable = buildLookupTable(bitmapIn, textureAvgColors);
 
   const int blocksY = textureLookupTable.size();
   const int blocksX = textureLookupTable[0].size();
