@@ -324,10 +324,6 @@ Rgb Xyz::to_rgb() const {
   const float g_lin = -0.9692660f * x + 1.8760108f * y + 0.0415560f * z;
   const float b_lin = 0.0556434f * x - 0.2040259f * y + 1.0572252f * z;
 
-  const float r_corr = apply_gamma(r_lin);
-  const float g_corr = apply_gamma(g_lin);
-  const float b_corr = apply_gamma(b_lin);
-
   const float r_norm = std::clamp(apply_gamma(r_lin) * 255.f, 0.f, 255.f);
   const float g_norm = std::clamp(apply_gamma(g_lin) * 255.f, 0.f, 255.f);
   const float b_norm = std::clamp(apply_gamma(b_lin) * 255.f, 0.f, 255.f);
