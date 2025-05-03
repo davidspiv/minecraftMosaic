@@ -4,36 +4,6 @@
 
 namespace clrspc {
 
-
-Color::Color(float x, float y, float z) { m_values = {x, y, z}; }
-
-
-std::array<float, 3> Color::get_values() const { return m_values; }
-
-
-void Color::print() const {
-  std::cout << "[GEN]" << "\nC1: " << m_values[0] << "\nC2: " << m_values[1]
-            << "\nC3: " << m_values[2] << "\n\n";
-}
-
-
-Matrix Color::to_column() const {
-  return Matrix({{m_values[0]}, {m_values[1]}, {m_values[2]}});
-};
-
-
-bool Color::operator==(const Color &other) const {
-  auto [x, y, z] = m_values;
-  float error = 1;
-  auto [other_x, other_y, other_z] = other.get_values();
-  return (std::abs(x - other_x) < error) && (std::abs(y - other_y) < error) &&
-         (std::abs(z - other_z) < error);
-}
-
-
-bool Color::operator!=(const Color &other) const { return !(*this == other); }
-
-
 // =========== Lab Space ==========
 
 Lab::Lab(float l, float a, float b) : Color(l, a, b) {}
@@ -57,13 +27,6 @@ Xyz Lab::to_xyz() const {
 
   return Xyz(rX * ref_x, rY * ref_y, rZ * ref_z);
 }
-
-
-Lch_Ab Lab::to_lch_ab() const {
-  const auto [l, c, h] = to_polar_color_space(m_values);
-
-  return Lch_Ab(l, c, h);
-};
 
 
 void Lab::print() const {
@@ -172,28 +135,6 @@ float Lab::diff_cie_2000(const Lab &other) const {
                                   H_term * H_term + R_T * C_term * H_term);
 
   return delta_E;
-}
-
-
-// ========= LCH(ab) Space =========
-
-Lch_Ab::Lch_Ab(float l, float c, float h) : Color(l, c, h) {}
-
-
-Lab Lch_Ab::to_lab() const {
-  auto [l, c, h_deg] = m_values;
-  const float h_rad = to_radians(h_deg);
-
-  const float a = c * std::cos(h_rad);
-  const float b = c * std::sin(h_rad);
-
-  return Lab(l, a, b);
-}
-
-
-void Lch_Ab::print() const {
-  std::cout << "[LCHab]" << "\nL: " << m_values[0] << "\nc: " << m_values[1]
-            << "\nh: " << m_values[2] << "\n\n";
 }
 
 
