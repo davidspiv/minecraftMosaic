@@ -11,7 +11,7 @@
 
 int main() {
   Timer::global();
-  Picture srcPic("./srcPics/garden.png");
+  Picture srcPic("./srcPics/tree.png");
 
   srcPic.gaussianBlur(15);
   Picture minPic = srcPic.bilinearResize(ONE_SIXTEENTH);
@@ -22,8 +22,8 @@ int main() {
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
 
   createTexturedPic(bitmap, validTextures);
-  //   createQuantizedPic(bitmap);
-  //   createAtlasPic(validTextures);
+  createQuantizedPic(bitmap);
+  createAtlasPic(validTextures);
 
   Timer::printData();
 }

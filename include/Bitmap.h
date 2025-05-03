@@ -2,6 +2,8 @@
 
 #include "Color_Space.h"
 
+#include <cstring>
+
 using uchar = std::uint8_t;
 
 class Bitmap {
@@ -25,6 +27,20 @@ public:
     const uchar b = m_bits[CHANNELS * (y * m_width + x) + 2];
 
     return clrspc::Rgb(r, g, b);
+  }
+
+  std::array<uchar, 64> getSixteen(int x, int y) const {
+    std::array<uchar, 64> outArr;
+
+    for (int i = 0; i < 16; ++i) {
+      const int index = CHANNELS * (y * m_width + x + i);
+      outArr[i * 4 + 0] = m_bits[index + 0]; // R
+      outArr[i * 4 + 1] = m_bits[index + 1]; // G
+      outArr[i * 4 + 2] = m_bits[index + 2]; // B
+      outArr[i * 4 + 3] = 255;               // A
+    }
+
+    return outArr;
   }
 
   int m_width;

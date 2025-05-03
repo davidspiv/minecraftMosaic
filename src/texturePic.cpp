@@ -1,3 +1,4 @@
+#include <cstring>
 #include <filesystem>
 #include <string>
 #include <thread>
@@ -118,31 +119,36 @@ getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 
 void createTexturedPic(const Bitmap &bitmapIn,
                        const std::vector<Bitmap> &validTextures) {
-  Timer timer("createTexturedPic");
-
   const auto textureAvgColors = getTextureAvgColors(validTextures);
   const auto textureLookupTable = buildLookupTable(bitmapIn, textureAvgColors);
 
-  const int outWidth = textureLookupTable[0].size() * BLOCK_SIZE;
-  const int outHeight = textureLookupTable.size() * BLOCK_SIZE;
+  const int blocksY = textureLookupTable.size();
+  const int blocksX = textureLookupTable[0].size();
+  const int outWidth = blocksX * BLOCK_SIZE;
+  const int outHeight = blocksY * BLOCK_SIZE;
+
   Picture texturedPic(outWidth, outHeight, 0, 0, 0);
 
-  for (size_t blockY = 0; blockY < textureLookupTable.size(); ++blockY) {
-    for (size_t blockX = 0; blockX < textureLookupTable[0].size(); ++blockX) {
-      const int texIdx = textureLookupTable[blockY][blockX];
-      const Bitmap &texture = validTextures[texIdx];
+  process2dInParallel(blocksY, blocksX, [&](int blockX, int blockY) {
+    const int texIdx = textureLookupTable[blockY][blockX];
+    const Bitmap &texture = validTextures[texIdx];
 
-      for (int y = 0; y < BLOCK_SIZE; ++y) {
-        for (int x = 0; x < BLOCK_SIZE; ++x) {
-          int outX = blockX * BLOCK_SIZE + x;
-          int outY = blockY * BLOCK_SIZE + y;
+    const int baseX = blockX * BLOCK_SIZE;
+    const int baseY = blockY * BLOCK_SIZE;
 
-          auto [r, g, b] = texture.get(x, y).get_values();
-          texturedPic.set(outX, outY, r, g, b);
-        }
-      }
+    for (int y = 0; y < BLOCK_SIZE; ++y) {
+      const int outY = baseY + y;
+
+      // Grab 16 RGB pixels (one row), convert to 8 RGBA in one shot
+      std::array<uchar, 64> rgbaRow = texture.getSixteen(0, y);
+
+      // Destination index in final RGBA buffer
+      const int dst = 4 * (outY * outWidth + baseX);
+
+      // Copy 16 RGBA pixels (64 bytes)
+      std::memcpy(&texturedPic._values[dst], rgbaRow.data(), 64);
     }
-  }
+  });
 
   texturedPic.save("./outputPics/texturedPic.png");
 }
