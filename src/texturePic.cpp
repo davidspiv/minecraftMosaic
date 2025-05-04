@@ -90,6 +90,7 @@ std::vector<Bitmap> getValidTextures(const std::vector<std::string> &fPaths) {
 
     // TEXTURE IS VALID
 
+    // print to cache file
     const auto [l, a, b] = colorAvg.to_lab().get_values();
     ofs << fPaths[i] << ", l: " << l << " a: " << a << " b: " << b << '\n';
 

@@ -11,8 +11,8 @@
 #include <vector>
 
 int main() {
-  //   Timer::global();
-  Picture srcPic("./srcPics/tree.png");
+  Timer::global();
+  Picture srcPic("./srcPics/van.png");
 
   srcPic.gaussianBlur(15);
   Picture minPic = srcPic.bilinearResize(ONE_SIXTEENTH);
@@ -20,18 +20,15 @@ int main() {
 
   const std::string textureDir = "./blocks";
 
-
   const std::vector<std::string> fPaths = getValidPaths(textureDir);
   const std::vector<Bitmap> validTextures = getValidTextures(fPaths);
   const auto textureAvgColors = getTextureAvgColors(validTextures);
 
+  const auto textureLookupTable = buildLookupTable(bitmap, textureAvgColors);
 
-  //   const auto textureLookupTable = buildLookupTable(bitmap,
-  //   textureAvgColors);
+  createTexturedPic(textureLookupTable, validTextures);
+  //   createQuantizedPic(bitmap);
+  //   createAtlasPic(validTextures);
 
-  //   createTexturedPic(textureLookupTable, validTextures);
-  //   //   createQuantizedPic(bitmap);
-  //   //   createAtlasPic(validTextures);
-
-  //   Timer::printData();
+  Timer::printData();
 }
