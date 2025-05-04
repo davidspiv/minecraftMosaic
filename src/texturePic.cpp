@@ -115,7 +115,7 @@ std::vector<Bitmap> getValidTextures(const std::vector<std::string> &fPaths) {
 
 
 std::vector<clrspc::Lab>
-getTextureAvgColors(const std::vector<Bitmap> &validTextures) {
+calcTextureAvgColors(const std::vector<Bitmap> &validTextures) {
   const size_t numValidTiles = validTextures.size();
   std::vector<clrspc::Lab> avgColors(numValidTiles, clrspc::Lab(0.f, 0.f, 0.f));
 

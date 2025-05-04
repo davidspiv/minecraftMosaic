@@ -14,4 +14,4 @@ void createTexturedPic(const std::vector<std::vector<int>> &textureLookupTable,
                        const std::vector<Bitmap> &validTextures);
 
 std::vector<clrspc::Lab>
-getTextureAvgColors(const std::vector<Bitmap> &validTextures);
+calcTextureAvgColors(const std::vector<Bitmap> &validTextures);
