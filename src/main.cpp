@@ -1,5 +1,6 @@
 #include "../include/Timer.h"
 #include "../include/atlasPic.h"
+#include "../include/config.h"
 #include "../include/gaussianBlur.h"
 #include "../include/picture.h"
 #include "../include/quantizePic.h"
@@ -13,7 +14,7 @@ int main() {
   Timer::global();
   Picture srcPic("./srcPics/garden.png");
 
-  srcPic.gaussianBlur(15);
+  srcPic.gaussianBlur(GAUSSIAN_BLUR_RADIUS);
   Picture minPic = srcPic.bilinearResize(ONE_SIXTEENTH);
   Bitmap bitmap = minPic.getBitmap();
 
@@ -24,8 +25,8 @@ int main() {
   const auto textureLookupTable = buildLookupTable(bitmap, textureAvgColors);
 
   createTexturedPic(textureLookupTable, validTextures);
-  //   createQuantizedPic(bitmap);
-  //   createAtlasPic(validTextures);
+  createQuantizedPic(bitmap);
+  createAtlasPic(validTextures);
 
   Timer::printData();
 }

@@ -1,14 +1,15 @@
+#include "../include/Color_Space.h"
+#include "../include/Timer.h"
+#include "../include/config.h"
+#include "../include/picture.h"
+#include "../include/util.h"
+
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include "../include/Color_Space.h"
-#include "../include/Timer.h"
-#include "../include/picture.h"
-#include "../include/util.h"
 
 std::vector<std::string> getPaths(const std::string &dir) {
   std::vector<std::string> fPaths;
@@ -73,7 +74,7 @@ getValidTexturesWithAvgs(const std::vector<std::string> &paths) {
       }
     }
 
-    if (diff > 35)
+    if (diff > DIFF_THRESHOLD)
       continue;
 
     results.emplace_back(path, avg);
@@ -133,20 +134,7 @@ std::vector<Bitmap> buildBitmaps(const std::vector<std::string> &validPaths) {
   std::vector<Bitmap> validTextures;
 
   for (size_t i = 0; i < numTiles; i++) {
-    Picture texture(validPaths[i]);
-
-    Bitmap bitmap(BLOCK_SIZE, BLOCK_SIZE);
-    for (size_t j = 0; j < BLOCK_SIZE; j++) {
-      for (size_t k = 0; k < BLOCK_SIZE; k++) {
-        const int r = texture.red(k, j);
-        const int g = texture.green(k, j);
-        const int b = texture.blue(k, j);
-
-        bitmap.set(k, j, clrspc::Rgb(r, g, b));
-      }
-    }
-
-
+    Bitmap bitmap = Picture(validPaths[i]).getBitmap();
     validTextures.push_back(bitmap);
   }
 
@@ -161,7 +149,7 @@ calcTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 
   for (size_t i = 0; i < numValidTiles; i++) {
     Bitmap bitmap(validTextures[i]);
-    avgColors.at(i) = getAverage(bitmap, 0, 0);
+    avgColors.emplace_back(getAverage(bitmap, 0, 0));
   }
 
   return avgColors;

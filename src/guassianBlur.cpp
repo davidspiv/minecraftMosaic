@@ -39,6 +39,9 @@ std::vector<double> calcGaussianKernelComponent(size_t size) {
 
 void Picture::gaussianBlur(const size_t strength) {
   Timer timer("Gaussian Blur");
+  if (strength < 1)
+    return;
+
   Picture tempPic = *this;
   const size_t width = _width;
   const size_t height = _height;
