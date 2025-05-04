@@ -19,13 +19,13 @@ int main() {
 
   std::vector<Bitmap> validTextures;
   std::vector<clrspc::Lab> textureAvgColors;
-  getTextureData(validTextures, textureAvgColors);
 
+  getTextureData(validTextures, textureAvgColors);
   const auto textureLookupTable = buildLookupTable(bitmap, textureAvgColors);
 
   createTexturedPic(textureLookupTable, validTextures);
-  createQuantizedPic(bitmap);
-  createAtlasPic(validTextures);
+  //   createQuantizedPic(bitmap);
+  //   createAtlasPic(validTextures);
 
   Timer::printData();
 }

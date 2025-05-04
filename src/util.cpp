@@ -81,6 +81,7 @@ size_t findClosestColorIdx(const clrspc::Lab &targetColor,
 std::vector<std::vector<int>>
 buildLookupTable(const Bitmap &bitmap,
                  const std::vector<clrspc::Lab> &quantColors) {
+  Timer timer("buildLookupTable");
   std::vector<std::vector<int>> lookupTable(bitmap.m_height,
                                             std::vector<int>(bitmap.m_width));
 

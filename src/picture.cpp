@@ -78,6 +78,7 @@ Picture::Picture(const Bitmap &bitmap, const int factor) {
 
 
 Bitmap Picture::getBitmap() const {
+  Timer timer("getBitmap");
   Bitmap bitmap(_width, _height);
 
   for (int y = 0; y < _height; ++y) {
@@ -149,6 +150,7 @@ void Picture::set(int x, int y, int red, int green, int blue, int alpha) {
 
 
 Picture::Picture(const std::string &filename) {
+  Timer("initialize photo");
   unsigned int w, h;
   unsigned error = lodepng::decode(_values, w, h, filename);
   if (error != 0)
@@ -161,6 +163,7 @@ int clampVal(float val) { return std::clamp(int(std::round(val)), 0, 255); };
 
 
 Picture Picture::bilinearResize(float factor) const {
+  Timer timer("bilinearResize");
   if (factor == 1)
     return *this;
 

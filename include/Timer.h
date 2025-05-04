@@ -34,8 +34,9 @@ public:
 
     std::cout << border << '\n';
 
-    std::cout << "Global minus save: "
-              << globalDuration - data.at("Saved photo") << '\n';
+    std::cout << "W/o png save: " << globalDuration - data.at("Saved photo")
+              << '\n';
+
     for (const auto &pair : data) {
 
       std::cout << std::left << std::setw(maxLabelSize) << pair.first << ": "

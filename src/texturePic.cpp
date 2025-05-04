@@ -25,28 +25,20 @@ std::vector<std::string> getPaths(const std::string &dir) {
   return fPaths;
 }
 
-std::vector<std::string> getValidPaths(const std::vector<std::string> &paths) {
-  const size_t numTiles = paths.size();
-  std::vector<std::string> validPaths;
 
-  std::ofstream ofs("texture.dat");
+std::vector<std::pair<std::string, clrspc::Lab>>
+getValidTexturesWithAvgs(const std::vector<std::string> &paths) {
+  std::vector<std::pair<std::string, clrspc::Lab>> results;
 
-  for (size_t i = 0; i < numTiles; i++) {
-
-    Picture texture(paths[i]);
-
-    // TRANSPARENT PIXELS CHECK
+  for (const auto &path : paths) {
+    Picture texture(path);
     bool isTransparent = false;
 
-    float lAvg = 0;
-    float aAvg = 0;
-    float bAvg = 0;
+    float lAvg = 0, aAvg = 0, bAvg = 0;
 
-    for (size_t j = 0; j < BLOCK_SIZE && !isTransparent; j++) {
-      for (size_t k = 0; k < BLOCK_SIZE; k++) {
-        const int alpha = texture.alpha(k, j);
-
-        if (alpha != 255) {
+    for (size_t j = 0; j < BLOCK_SIZE && !isTransparent; ++j) {
+      for (size_t k = 0; k < BLOCK_SIZE; ++k) {
+        if (texture.alpha(k, j) != 255) {
           isTransparent = true;
           break;
         }
@@ -55,7 +47,6 @@ std::vector<std::string> getValidPaths(const std::vector<std::string> &paths) {
                                      texture.blue(k, j))
                              .to_lab()
                              .get_values();
-
         lAvg += l;
         aAvg += a;
         bAvg += b;
@@ -66,50 +57,78 @@ std::vector<std::string> getValidPaths(const std::vector<std::string> &paths) {
       continue;
 
     constexpr float pixelCount = BLOCK_SIZE * BLOCK_SIZE;
-
     lAvg /= pixelCount;
     aAvg /= pixelCount;
     bAvg /= pixelCount;
 
-    const clrspc::Lab colorAvg(lAvg, aAvg, bAvg);
+    clrspc::Lab avg(lAvg, aAvg, bAvg);
 
-    // VARIANCE WITHIN TEXTURE CHECK
-    const float diffMax = 35;
     float diff = 0;
-
-    for (size_t j = 0; j < BLOCK_SIZE && diff < diffMax; j++) {
-      for (size_t k = 0; k < BLOCK_SIZE; k++) {
-        const int rCurr = texture.red(k, j);
-        const int gCurr = texture.green(k, j);
-        const int bCurr = texture.blue(k, j);
-
-        const clrspc::Lab colorCurr = clrspc::Rgb(rCurr, gCurr, bCurr).to_lab();
-
-        diff += distSquared(colorAvg, colorCurr);
+    for (size_t j = 0; j < BLOCK_SIZE && diff < 35; ++j) {
+      for (size_t k = 0; k < BLOCK_SIZE; ++k) {
+        auto color = clrspc::Rgb(texture.red(k, j), texture.green(k, j),
+                                 texture.blue(k, j))
+                         .to_lab();
+        diff += distSquared(avg, color);
       }
     }
 
-    if (diff > diffMax) {
+    if (diff > 35)
       continue;
-    }
 
-    // TEXTURE IS VALID
-
-    // print to cache file
-    const auto [l, a, b] = colorAvg.get_values();
-    ofs << paths[i] << ", l: " << l << " a: " << a << " b: " << b << '\n';
-
-
-    validPaths.emplace_back(paths[i]);
+    results.emplace_back(path, avg);
   }
 
-  ofs.close();
-  return validPaths;
-};
+  return results;
+}
 
 
-std::vector<Bitmap>
-getValidTextures(const std::vector<std::string> &validPaths) {
+void writeTextureCache(
+    const std::vector<std::pair<std::string, clrspc::Lab>> &data) {
+  std::ofstream ofs("texture.dat", std::ios::binary);
+  for (const auto &[path, color] : data) {
+    const auto [l, a, b] = color.get_values();
+    const uint32_t len = path.size();
+
+    ofs.write(reinterpret_cast<const char *>(&len), sizeof(len));
+    ofs.write(path.data(), len);
+    ofs.write(reinterpret_cast<const char *>(&l), sizeof(float));
+    ofs.write(reinterpret_cast<const char *>(&a), sizeof(float));
+    ofs.write(reinterpret_cast<const char *>(&b), sizeof(float));
+  }
+}
+
+
+bool readTextureCache(std::vector<std::string> &paths,
+                      std::vector<clrspc::Lab> &colors) {
+  std::ifstream ifs("texture.dat", std::ios::binary);
+  if (!ifs)
+    return false;
+
+  while (ifs.peek() != EOF) {
+    uint32_t len;
+    if (!ifs.read(reinterpret_cast<char *>(&len), sizeof(len)))
+      break;
+
+    std::string path(len, '\0');
+    if (!ifs.read(&path[0], len))
+      break;
+
+    float l, a, b;
+    if (!ifs.read(reinterpret_cast<char *>(&l), sizeof(float)) ||
+        !ifs.read(reinterpret_cast<char *>(&a), sizeof(float)) ||
+        !ifs.read(reinterpret_cast<char *>(&b), sizeof(float)))
+      break;
+
+    paths.emplace_back(std::move(path));
+    colors.emplace_back(l, a, b);
+  }
+
+  return !paths.empty() && paths.size() == colors.size();
+}
+
+
+std::vector<Bitmap> buildBitmaps(const std::vector<std::string> &validPaths) {
   const size_t numTiles = validPaths.size();
   std::vector<Bitmap> validTextures;
 
@@ -151,52 +170,27 @@ calcTextureAvgColors(const std::vector<Bitmap> &validTextures) {
 
 void getTextureData(std::vector<Bitmap> &validTextures,
                     std::vector<clrspc::Lab> &textureAvgColors) {
-
-  const std::string textureDir = "./blocks";
+  Timer timer("getTextureData");
   std::vector<std::string> validPaths;
 
+  if (!readTextureCache(validPaths, textureAvgColors)) {
+    auto allPaths = getPaths("./blocks");
+    auto textureData = getValidTexturesWithAvgs(allPaths);
 
-  if (!std::filesystem::exists("texture.dat")) {
-    std::vector<std::string> paths = getPaths(textureDir);
-    validPaths = getValidPaths(paths);
-    validTextures = getValidTextures(validPaths);
-    textureAvgColors = calcTextureAvgColors(validTextures);
-  } else {
-    std::ifstream ifs;
-    ifs.open(("texture.dat"));
-    std::string line;
-    while (getline(ifs, line) && !line.empty()) {
+    validPaths.reserve(textureData.size());
+    textureAvgColors.reserve(textureData.size());
 
-      const size_t commaIdx = line.find(",");
-
-      const size_t lIdx = line.find("l:") + 2;
-      const size_t aIdx = line.find("a:") + 2;
-      const size_t bIdx = line.find("b:") + 2;
-
-      if (commaIdx == std::string::npos || lIdx == std::string::npos ||
-          aIdx == std::string::npos || bIdx == std::string::npos) {
-        throw std::runtime_error(
-            "Unable to import texture data. Delete texture.dat and try again");
-      }
-
-      std::string texturePath = line.substr(0, commaIdx);
-
-      float l = std::stof(line.substr(lIdx, aIdx - lIdx + 2));
-      float a = std::stof(line.substr(aIdx, bIdx - aIdx + 2));
-      float b = std::stof(line.substr(bIdx));
-
-      clrspc::Lab avgColor(l, a, b);
-
-      validPaths.emplace_back(texturePath);
-      textureAvgColors.emplace_back(avgColor);
+    for (const auto &[path, lab] : textureData) {
+      validPaths.push_back(path);
+      textureAvgColors.push_back(lab);
     }
 
-    validTextures = getValidTextures(validPaths);
-    ifs.close();
-    if (validTextures.empty() ||
-        (validTextures.size() != textureAvgColors.size())) {
-      throw std::runtime_error(
-          "Unable to import texture data. Delete texture.dat and try again");
+    writeTextureCache(textureData);
+    validTextures = buildBitmaps(validPaths);
+  } else {
+    validTextures = buildBitmaps(validPaths);
+    if (validTextures.size() != textureAvgColors.size()) {
+      throw std::runtime_error("Cached texture data is corrupt.");
     }
   }
 }
@@ -213,6 +207,7 @@ void createTexturedPic(const std::vector<std::vector<int>> &textureLookupTable,
   Picture texturedPic(outWidth, outHeight, 0, 0, 0);
 
   process2dInParallel(blocksY, blocksX, [&](int blockX, int blockY) {
+    Timer timer("createTexturedPic");
     const int texIdx = textureLookupTable[blockY][blockX];
     const Bitmap &texture = validTextures[texIdx];
 
