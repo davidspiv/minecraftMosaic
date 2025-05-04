@@ -11,7 +11,7 @@
 constexpr int BLOCK_SIZE = 16;
 constexpr float ONE_SIXTEENTH = 0.0625f;
 
-int distSquared(const clrspc::Rgb &colorA, const clrspc::Rgb &colorB);
+double distSquared(const clrspc::Lab &colorA, const clrspc::Lab &colorB);
 
 std::array<double, 3>
 multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,

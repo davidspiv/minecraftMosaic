@@ -8,14 +8,6 @@
 #include <cmath>
 
 
-int distSquared(const clrspc::Rgb &a, const clrspc::Rgb &b) {
-  int dr = int(b.r()) - int(a.r());
-  int dg = int(b.g()) - int(a.g());
-  int db = int(b.b()) - int(a.b());
-  return dr * dr + dg * dg + db * db;
-}
-
-
 double distSquared(const clrspc::Lab &colorA, const clrspc::Lab &colorB) {
 
   const double xD = colorB.l() - colorA.l();
@@ -72,11 +64,12 @@ size_t findClosestColorIdx(const clrspc::Lab &targetColor,
   double minDist = std::numeric_limits<double>::max();
 
   for (size_t i = 0; i < quantColors.size(); ++i) {
-    const double curDist = distSquared(targetColor, quantColors[i]); // fast
-    // const double curDist = targetColor.diff_cie_2000(quantColors[i]); // slow
+    const double currDist = distSquared(targetColor, quantColors[i]); // fast
+    // const double currDist = targetColor.diff_cie_2000(quantColors[i]); //
+    // slow
 
-    if (curDist < minDist) {
-      minDist = curDist;
+    if (currDist < minDist) {
+      minDist = currDist;
       closestColorIdx = i;
     }
   }

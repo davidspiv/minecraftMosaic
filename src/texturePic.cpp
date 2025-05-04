@@ -10,7 +10,7 @@
 #include "../include/picture.h"
 #include "../include/util.h"
 
-std::vector<std::string> getValidPaths(const std::string &dir) {
+std::vector<std::string> getPaths(const std::string &dir) {
   std::vector<std::string> fPaths;
 
   for (const auto &f : std::filesystem::directory_iterator(dir)) {
@@ -25,36 +25,40 @@ std::vector<std::string> getValidPaths(const std::string &dir) {
   return fPaths;
 }
 
+std::vector<std::string> getValidPaths(const std::vector<std::string> &paths) {
+  const size_t numTiles = paths.size();
+  std::vector<std::string> validPaths;
 
-std::vector<Bitmap> getValidTextures(const std::vector<std::string> &fPaths) {
-  const size_t numTiles = fPaths.size();
-  std::vector<Bitmap> validTextures;
-
-  std::ofstream ofs("test.dat");
+  std::ofstream ofs("texture.dat");
 
   for (size_t i = 0; i < numTiles; i++) {
 
-    Picture texture(fPaths[i]);
+    Picture texture(paths[i]);
 
     // TRANSPARENT PIXELS CHECK
     bool isTransparent = false;
 
-    int rAvg = 0;
-    int gAvg = 0;
-    int bAvg = 0;
+    float lAvg = 0;
+    float aAvg = 0;
+    float bAvg = 0;
 
     for (size_t j = 0; j < BLOCK_SIZE && !isTransparent; j++) {
       for (size_t k = 0; k < BLOCK_SIZE; k++) {
-        const int a = texture.alpha(k, j);
+        const int alpha = texture.alpha(k, j);
 
-        if (a != 255) {
+        if (alpha != 255) {
           isTransparent = true;
           break;
         }
 
-        rAvg += texture.red(k, j);
-        gAvg += texture.green(k, j);
-        bAvg += texture.blue(k, j);
+        auto [l, a, b] = clrspc::Rgb(texture.red(k, j), texture.green(k, j),
+                                     texture.blue(k, j))
+                             .to_lab()
+                             .get_values();
+
+        lAvg += l;
+        aAvg += a;
+        bAvg += b;
       }
     }
 
@@ -63,15 +67,15 @@ std::vector<Bitmap> getValidTextures(const std::vector<std::string> &fPaths) {
 
     constexpr float pixelCount = BLOCK_SIZE * BLOCK_SIZE;
 
-    rAvg /= pixelCount;
-    gAvg /= pixelCount;
+    lAvg /= pixelCount;
+    aAvg /= pixelCount;
     bAvg /= pixelCount;
 
-    const clrspc::Rgb colorAvg(rAvg, gAvg, bAvg);
+    const clrspc::Lab colorAvg(lAvg, aAvg, bAvg);
 
     // VARIANCE WITHIN TEXTURE CHECK
-    const int diffMax = 400'000;
-    int diff = 0;
+    const float diffMax = 35;
+    float diff = 0;
 
     for (size_t j = 0; j < BLOCK_SIZE && diff < diffMax; j++) {
       for (size_t k = 0; k < BLOCK_SIZE; k++) {
@@ -79,20 +83,38 @@ std::vector<Bitmap> getValidTextures(const std::vector<std::string> &fPaths) {
         const int gCurr = texture.green(k, j);
         const int bCurr = texture.blue(k, j);
 
-        const clrspc::Rgb colorCurr(rCurr, gCurr, bCurr);
+        const clrspc::Lab colorCurr = clrspc::Rgb(rCurr, gCurr, bCurr).to_lab();
 
         diff += distSquared(colorAvg, colorCurr);
       }
     }
 
-    if (diff > diffMax)
+    if (diff > diffMax) {
       continue;
+    }
 
     // TEXTURE IS VALID
 
     // print to cache file
-    const auto [l, a, b] = colorAvg.to_lab().get_values();
-    ofs << fPaths[i] << ", l: " << l << " a: " << a << " b: " << b << '\n';
+    const auto [l, a, b] = colorAvg.get_values();
+    ofs << paths[i] << ", l: " << l << " a: " << a << " b: " << b << '\n';
+
+
+    validPaths.emplace_back(paths[i]);
+  }
+
+  ofs.close();
+  return validPaths;
+};
+
+
+std::vector<Bitmap>
+getValidTextures(const std::vector<std::string> &validPaths) {
+  const size_t numTiles = validPaths.size();
+  std::vector<Bitmap> validTextures;
+
+  for (size_t i = 0; i < numTiles; i++) {
+    Picture texture(validPaths[i]);
 
     Bitmap bitmap(BLOCK_SIZE, BLOCK_SIZE);
     for (size_t j = 0; j < BLOCK_SIZE; j++) {
@@ -109,7 +131,6 @@ std::vector<Bitmap> getValidTextures(const std::vector<std::string> &fPaths) {
     validTextures.push_back(bitmap);
   }
 
-  ofs.close();
   return validTextures;
 }
 
@@ -125,6 +146,59 @@ calcTextureAvgColors(const std::vector<Bitmap> &validTextures) {
   }
 
   return avgColors;
+}
+
+
+void getTextureData(std::vector<Bitmap> &validTextures,
+                    std::vector<clrspc::Lab> &textureAvgColors) {
+
+  const std::string textureDir = "./blocks";
+  std::vector<std::string> validPaths;
+
+
+  if (!std::filesystem::exists("texture.dat")) {
+    std::vector<std::string> paths = getPaths(textureDir);
+    validPaths = getValidPaths(paths);
+    validTextures = getValidTextures(validPaths);
+    textureAvgColors = calcTextureAvgColors(validTextures);
+  } else {
+    std::ifstream ifs;
+    ifs.open(("texture.dat"));
+    std::string line;
+    while (getline(ifs, line) && !line.empty()) {
+
+      const size_t commaIdx = line.find(",");
+
+      const size_t lIdx = line.find("l:") + 2;
+      const size_t aIdx = line.find("a:") + 2;
+      const size_t bIdx = line.find("b:") + 2;
+
+      if (commaIdx == std::string::npos || lIdx == std::string::npos ||
+          aIdx == std::string::npos || bIdx == std::string::npos) {
+        throw std::runtime_error(
+            "Unable to import texture data. Delete texture.dat and try again");
+      }
+
+      std::string texturePath = line.substr(0, commaIdx);
+
+      float l = std::stof(line.substr(lIdx, aIdx - lIdx + 2));
+      float a = std::stof(line.substr(aIdx, bIdx - aIdx + 2));
+      float b = std::stof(line.substr(bIdx));
+
+      clrspc::Lab avgColor(l, a, b);
+
+      validPaths.emplace_back(texturePath);
+      textureAvgColors.emplace_back(avgColor);
+    }
+
+    validTextures = getValidTextures(validPaths);
+    ifs.close();
+    if (validTextures.empty() ||
+        (validTextures.size() != textureAvgColors.size())) {
+      throw std::runtime_error(
+          "Unable to import texture data. Delete texture.dat and try again");
+    }
+  }
 }
 
 
