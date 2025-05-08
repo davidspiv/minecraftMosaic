@@ -25,8 +25,8 @@ int main() {
   const auto textureLookupTable = buildLookupTable(bitmap, textureAvgColors);
 
   createTexturedPic(textureLookupTable, validTextures);
-  createQuantizedPic(bitmap);
-  createAtlasPic(validTextures);
+//   createQuantizedPic(bitmap);
+//   createAtlasPic(validTextures);
 
   Timer::printData();
 }
