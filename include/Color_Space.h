@@ -15,14 +15,14 @@ namespace clrspc {
 class Lab;
 class Rgb;
 
-template <typename channel_t> class Color {
+class Color {
 protected:
-  std::array<channel_t, 3> m_values;
+  std::array<float, 3> m_values;
 
 public:
-  Color(channel_t x, channel_t y, channel_t z) { m_values = {x, y, z}; }
+  Color(float x, float y, float z) { m_values = {x, y, z}; }
 
-  [[nodiscard]] std::array<channel_t, 3> get_values() const { return m_values; }
+  [[nodiscard]] std::array<float, 3> get_values() const { return m_values; }
 
   virtual void print() const {
     std::cout << "[GEN]" << "\nC1: " << m_values[0] << "\nC2: " << m_values[1]
@@ -43,7 +43,7 @@ public:
 };
 
 
-class Lab : public Color<float> {
+class Lab : public Color {
 public:
   Lab(float l, float a, float b);
 
@@ -58,7 +58,7 @@ public:
 };
 
 
-class Rgb : public Color<uint8_t> {
+class Rgb : public Color {
 public:
   Rgb(float r, float g, float b);
 

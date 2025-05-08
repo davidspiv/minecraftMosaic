@@ -17,20 +17,20 @@ namespace clrspc {
 class Lab;
 class Rgb;
 
-template <typename T> class Color {
+class Color {
 protected:
-  std::array<T, 3> m_values;
+  std::array<float, 3> m_values;
 
 public:
-  Color(T x, T y, T z) { m_values = {x, y, z}; }
+  Color(float x, float y, float z) { m_values = {x, y, z}; }
 
-  [[nodiscard]] std::array<T, 3> get_values() const { return m_values; }
+  [[nodiscard]] std::array<float, 3> get_values() const { return m_values; }
 
   virtual void print() const = 0;
 
   [[nodiscard]] bool operator==(Color const &other) const {
     auto [x, y, z] = m_values;
-    T error = 1;
+    float error = 1;
     auto [other_x, other_y, other_z] = other.get_values();
     return (std::abs(x - other_x) < error) && (std::abs(y - other_y) < error) &&
            (std::abs(z - other_z) < error);
@@ -41,7 +41,7 @@ public:
   }
 };
 
-class Lab : public Color<float> {
+class Lab : public Color {
 public:
   Lab(float l, float a, float b);
 
@@ -54,7 +54,7 @@ public:
   void print() const override;
 };
 
-class Rgb : public Color<uchar> {
+class Rgb : public Color {
 public:
   Rgb(float r, float g, float b);
 

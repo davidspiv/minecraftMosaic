@@ -36,21 +36,7 @@ void Lab::print() const {
 
 // ========== sRGB Space ==========
 
-Rgb::Rgb(float r, float g, float b)
-    : Color{static_cast<uint8_t>(std::clamp(std::lround(r), 0l, 255l)),
-            static_cast<uint8_t>(std::clamp(std::lround(g), 0l, 255l)),
-            static_cast<uint8_t>(std::clamp(std::lround(b), 0l, 255l))} {
-
-  auto warn_if_clamped = [](float val, const char *name) {
-    if (val < -0.001f || val > 255.001f) {
-      std::cout << "Warning: " << name << " channel clamped: " << val << '\n';
-    }
-  };
-
-  warn_if_clamped(r, "R");
-  warn_if_clamped(g, "G");
-  warn_if_clamped(b, "B");
-}
+Rgb::Rgb(float r, float g, float b) : Color(r, g, b) {}
 
 
 Lab Rgb::to_lab() const {
