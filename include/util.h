@@ -11,50 +11,47 @@
 constexpr int BLOCK_SIZE = 16;
 constexpr float ONE_SIXTEENTH = 0.0625f;
 
-double distSquared(const clrspc::Lab &colorA, const clrspc::Lab &colorB);
+float distSquared(clrspc::Lab const& colorA, clrspc::Lab const& colorB);
 
-std::array<double, 3>
-multiplyMatrix(const std::array<std::array<double, 3>, 3> &matrix,
-               const std::array<double, 3> &vector);
+std::array<float, 3> multiplyMatrix(
+    std::array<std::array<float, 3>, 3> const& matrix, std::array<float, 3> const& vector);
 
-clrspc::Lab getAverage(const Bitmap &bitmap, int originX, int originY);
+clrspc::Lab getAverage(Bitmap const& bitmap, int originX, int originY);
 
-std::vector<std::vector<int>>
-buildLookupTable(const Bitmap &bitmap,
-                 const std::vector<clrspc::Lab> &quantColors);
+std::vector<std::vector<int>> buildLookupTable(
+    Bitmap const& bitmap, std::vector<clrspc::Lab> const& quantColors);
 
-size_t findClosestColorIdx(const clrspc::Lab &targetColor,
-                           const std::vector<clrspc::Lab> &quantColors);
+size_t findClosestColorIdx(
+    clrspc::Lab const& targetColor, std::vector<clrspc::Lab> const& quantColors);
 
-
-template <typename T> auto euclidean_norm(const T xMag, const T yMag) {
-  return std::sqrt(xMag * xMag + yMag * yMag);
+template<typename T> auto euclidean_norm(T const xMag, T const yMag)
+{
+    return std::sqrt(xMag * xMag + yMag * yMag);
 }
 
+template<typename Func> void process2dInParallel(int height, int width, Func func)
+{
 
-template <typename Func>
-void process2dInParallel(int height, int width, Func func) {
+    static int const NUM_THREADS
+        = std::min(static_cast<int>(std::thread::hardware_concurrency()), height);
+    static int const CHUNK_SIZE = height / NUM_THREADS;
 
-  static const int NUM_THREADS =
-      std::min(static_cast<int>(std::thread::hardware_concurrency()), height);
-  static const int CHUNK_SIZE = height / NUM_THREADS;
+    std::vector<std::thread> threads;
 
-  std::vector<std::thread> threads;
+    for (int t = 0; t < NUM_THREADS; ++t) {
+        threads.emplace_back([=]() {
+            int startRow = t * CHUNK_SIZE;
+            int endRow = (t == NUM_THREADS - 1) ? height : (t + 1) * CHUNK_SIZE;
 
-  for (int t = 0; t < NUM_THREADS; ++t) {
-    threads.emplace_back([=]() {
-      int startRow = t * CHUNK_SIZE;
-      int endRow = (t == NUM_THREADS - 1) ? height : (t + 1) * CHUNK_SIZE;
+            for (int j = startRow; j < endRow; ++j) {
+                for (int i = 0; i < width; ++i) {
+                    func(i, j);
+                }
+            }
+        });
+    }
 
-      for (int j = startRow; j < endRow; ++j) {
-        for (int i = 0; i < width; ++i) {
-          func(i, j);
-        }
-      }
-    });
-  }
-
-  for (auto &thread : threads) {
-    thread.join();
-  }
+    for (auto& thread : threads) {
+        thread.join();
+    }
 }

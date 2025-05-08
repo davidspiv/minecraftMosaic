@@ -9,24 +9,24 @@
 
 #include <vector>
 
+int main()
+{
+    Timer::global();
+    Picture srcPic("./srcPics/garden.png");
 
-int main() {
-  Timer::global();
-  Picture srcPic("./srcPics/garden.png");
+    srcPic.gaussianBlur(GAUSSIAN_BLUR_RADIUS);
+    Picture minPic = srcPic.bilinearResize(ONE_SIXTEENTH);
+    Bitmap bitmap = minPic.getBitmap();
 
-  srcPic.gaussianBlur(GAUSSIAN_BLUR_RADIUS);
-  Picture minPic = srcPic.bilinearResize(ONE_SIXTEENTH);
-  Bitmap bitmap = minPic.getBitmap();
+    std::vector<Bitmap> validTextures;
+    std::vector<clrspc::Lab> textureAvgColors;
 
-  std::vector<Bitmap> validTextures;
-  std::vector<clrspc::Lab> textureAvgColors;
+    getTextureData(validTextures, textureAvgColors);
+    auto const textureLookupTable = buildLookupTable(bitmap, textureAvgColors);
 
-  getTextureData(validTextures, textureAvgColors);
-  const auto textureLookupTable = buildLookupTable(bitmap, textureAvgColors);
+    createTexturedPic(textureLookupTable, validTextures);
+    // createQuantizedPic(bitmap);
+    // createAtlasPic(validTextures);
 
-  createTexturedPic(textureLookupTable, validTextures);
-//   createQuantizedPic(bitmap);
-//   createAtlasPic(validTextures);
-
-  Timer::printData();
+    Timer::printData();
 }
